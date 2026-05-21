@@ -241,4 +241,58 @@ checkboxesNotif[1].checked =
       registrarToggle(checkboxesPrivacidad[i], clavesPrivacidad[i]);
     }
   }
+    https://6a0f699dd2a9857070354e65.mockapi.io/Settings
+
+    async function cargarConfiguracion() {
+
+  resultado.textContent =
+    "Cargando configuración...";
+
+  try {
+
+    const response =
+      await fetch(
+        "https://6a0f699dd2a9857070354e65.mockapi.io/Settings"
+      );
+
+    const data =
+      await response.json();
+
+    const config = data[0];
+
+
+
+    toggles[0].checked =
+      config.notificacionEmail;
+
+    toggles[1].checked =
+      config.notificacionPush;
+
+    toggles[2].checked =
+      config.perfilPublico;
+
+    toggles[3].checked =
+      config.mostrarActividad;
+
+
+
+    resultado.textContent = "";
+
+  } catch (error) {
+
+    resultado.textContent =
+      "Error cargando configuración";
+
+    resultado.style.color = "red";
+
+  }
+
+}
+
+
+
+cargarUsuario();
+cargarToggles();
+cargarConfiguracion();
+
 });

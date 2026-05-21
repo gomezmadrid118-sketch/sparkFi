@@ -98,32 +98,42 @@ function cargarPerfil() {
       JSON.parse(
         localStorage.getItem("usuario")
       );
+        https://6a0f699dd2a9857070354e65.mockapi.io/Profile
 
 
+    fetch("https://6a0f699dd2a9857070354e65.mockapi.io/Profile")
+  .then(response => response.json())
+  .then(data => {
 
-    if (usuario) {
+    const usuario = data[0];
 
-      nombre.textContent =
-        usuario.nombre;
+    nombre.textContent =
+      usuario.nombre;
 
-      email.textContent =
-        usuario.email;
+    email.textContent =
+      usuario.email;
 
-    } else {
+    cursos.textContent =
+      usuario.cursos;
 
-      nombre.textContent =
-        "Juan Pérez";
+    retos.textContent =
+      usuario.retos;
 
-      email.textContent =
-        "juan.perez@example.com";
+    ahorro.textContent =
+      usuario.ahorro;
 
-    }
+    iniciarContadores();
 
-    cursos.textContent = "0";
+  })
+  .catch(() => {
 
-    retos.textContent = "0";
+    nombre.textContent =
+      "Error cargando perfil";
 
-    ahorro.textContent = "$";
+    email.textContent =
+      "Intenta nuevamente";
+
+  });
 
     iniciarContadores();
 
