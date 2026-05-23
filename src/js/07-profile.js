@@ -24,9 +24,11 @@ function animarContador(elemento, duracion) {
 
 // Dispara el contador en cada uno de los valores estadísticos del sidebar
 function iniciarContadores() {
-  document.querySelectorAll(".profile-sidebar__stat-value").forEach(function (el) {
-    animarContador(el, 1200);
-  });
+  document
+    .querySelectorAll(".profile-sidebar__stat-value")
+    .forEach(function (el) {
+      animarContador(el, 1200);
+    });
 }
 
 // Muestra un confirm() antes de redirigir al logout para evitar cierres accidentales
@@ -44,15 +46,20 @@ function confirmarCerrarSesion() {
 
 // Las tarjetas de logros aparecen una por una con un fade-in escalonado
 function animarLogros() {
-  document.querySelectorAll(".profile-achievements__card").forEach(function (tarjeta, i) {
-    tarjeta.style.opacity = "0";
-    tarjeta.style.transform = "translateY(16px)";
-    tarjeta.style.transition = "opacity 0.4s ease, transform 0.4s ease";
-    setTimeout(function () {
-      tarjeta.style.opacity = "1";
-      tarjeta.style.transform = "translateY(0)";
-    }, 200 + i * 150);
-  });
+  document
+    .querySelectorAll(".profile-achievements__card")
+    .forEach(function (tarjeta, i) {
+      tarjeta.style.opacity = "0";
+      tarjeta.style.transform = "translateY(16px)";
+      tarjeta.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+      setTimeout(
+        function () {
+          tarjeta.style.opacity = "1";
+          tarjeta.style.transform = "translateY(0)";
+        },
+        200 + i * 150,
+      );
+    });
 }
 
 // Placeholder hasta que exista una página dedicada a todos los logros
