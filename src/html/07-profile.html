@@ -55,8 +55,17 @@
           />
         </div>
 
-        <h1 class="profile-sidebar__name">Juan Pérez</h1>
-        <p class="profile-sidebar__email">juan.perez@example.com</p>
+        <h1
+  id="profile-name"
+  class="profile-sidebar__name"
+>
+  Cargando...
+        </h1>
+        <p
+          id="profile-email"
+          class="profile-sidebar__email">
+              Cargando...
+          </p>
         <!-- Insignia que muestra el nivel de progreso del usuario en la plataforma -->
         <span class="profile-sidebar__level-badge">Nivel 3</span>
 
@@ -68,18 +77,34 @@
         <!-- Resumen numérico del desempeño del usuario; el JS los anima al cargar la página -->
         <section class="profile-sidebar__stats">
           <div class="profile-sidebar__stat-item">
-            <span class="profile-sidebar__stat-value">4</span>
+           <span
+            id="stat-retos"
+            class="profile-sidebar__stat-value"
+          >
+            0
+          </span>
             <span class="profile-sidebar__stat-label">Cursos<br />completados</span>
           </div>
 
           <div class="profile-sidebar__stat-item">
-            <span class="profile-sidebar__stat-value">5</span>
+            <span
+              id="stat-retos"
+              class="profile-sidebar__stat-value"
+            >
+              0
+            </span>
             <span class="profile-sidebar__stat-label">Retos<br />ganados</span>
           </div>
 
           <div class="profile-sidebar__stat-item">
-            <span class="profile-sidebar__stat-value">$900,000</span>
-            <span class="profile-sidebar__stat-label">Ahorro<br />acumulado</span>
+            <span class="profile-sidebar__stat-value">$000</span>
+            <span
+              id="stat-ahorro"
+              class="profile-sidebar__stat-value"
+            >
+              $0
+            </span>
+          <span class="profile-sidebar__stat-label">Ahorro<br />acumulado</span>
           </div>
         </section>
 

@@ -10,6 +10,32 @@ const preferencias = {
   perfilPublico: false,
   mostrarActividad: true,
 };
+const usuarioGuardado =
+  
+JSON.parse(localStorage.getItem("usuario"));
+
+if (usuarioGuardado) {
+  USUARIO_SESION.nombre = usuarioGuardado.nombre;
+
+  USUARIO_SESION.email = usuarioGuardado.email;
+
+  USUARIO_SESION.password = usuarioGuardado.password;
+}
+
+const preferenciasGuardadas =
+  JSON.parse(localStorage.getItem("preferencias"));
+
+if (preferenciasGuardadas) {
+
+  preferencias.notificacionEmail = preferenciasGuardadas.notificacionEmail;
+
+  preferencias.notificacionPush = preferenciasGuardadas.notificacionPush;
+
+  preferencias.perfilPublico = preferenciasGuardadas.perfilPublico;
+
+  preferencias.mostrarActividad = preferenciasGuardadas.mostrarActividad;
+
+}
 
 function validarFormatoEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -88,6 +114,11 @@ function manejarGuardarPerfil() {
   USUARIO_SESION.nombre = nombre;
   USUARIO_SESION.email = email;
 
+  localStorage.setItem(
+  "usuario",
+  JSON.stringify(USUARIO_SESION)
+);
+
   mostrarMensaje(resultadoArea, "Perfil actualizado correctamente.", "exito");
 }
 
@@ -146,6 +177,7 @@ function manejarCambioPassword() {
   }
 
   USUARIO_SESION.password = nueva;
+  localStorage.setItem("usuario", JSON.stringify(USUARIO_SESION));
 
   limpiarCamposPassword();
   mostrarMensaje(resultadoArea, "¡Contraseña actualizada exitosamente!", "exito");
@@ -154,10 +186,12 @@ function manejarCambioPassword() {
 function registrarToggle(checkbox, clave) {
   checkbox.addEventListener("change", function () {
     preferencias[clave] = checkbox.checked;
+    localStorage.setItem("preferencias", JSON.stringify(preferencias));
   });
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  localStorage.setItem("usuario", JSON.stringify(USUARIO_SESION));
   const seccionPerfil = document.querySelector(".settings-section--profile");
   const btnGuardarPerfil = seccionPerfil.querySelector(".settings-form__submit--profile");
 
@@ -167,6 +201,9 @@ document.addEventListener("DOMContentLoaded", function () {
   seccionPerfil.insertBefore(resultadoPerfil, btnGuardarPerfil);
 
   btnGuardarPerfil.addEventListener("click", manejarGuardarPerfil);
+
+  document.getElementById("edit-nombre").value = USUARIO_SESION.nombre;
+  document.getElementById("edit-email").value = USUARIO_SESION.email;
 
   const btnCambiarFoto = document.querySelector(".settings-section__change-photo-button");
   if (btnCambiarFoto) {
@@ -182,6 +219,11 @@ document.addEventListener("DOMContentLoaded", function () {
   if (seccionNotif) {
     const clavesNotif = ["notificacionEmail", "notificacionPush"];
     const checkboxesNotif = seccionNotif.querySelectorAll("input[type='checkbox']");
+    checkboxesNotif[0].checked =
+  preferencias.notificacionEmail;
+
+checkboxesNotif[1].checked =
+  preferencias.notificacionPush;
 
     for (let i = 0; i < checkboxesNotif.length; i++) {
       registrarToggle(checkboxesNotif[i], clavesNotif[i]);
@@ -192,9 +234,63 @@ document.addEventListener("DOMContentLoaded", function () {
   if (seccionPrivacidad) {
     const clavesPrivacidad = ["perfilPublico", "mostrarActividad"];
     const checkboxesPrivacidad = seccionPrivacidad.querySelectorAll("input[type='checkbox']");
+    checkboxesPrivacidad[0].checked = preferencias.perfilPublico;
+    checkboxesPrivacidad[1].checked = preferencias.mostrarActividad;
 
     for (let i = 0; i < checkboxesPrivacidad.length; i++) {
       registrarToggle(checkboxesPrivacidad[i], clavesPrivacidad[i]);
     }
   }
+    async function cargarConfiguracion() {
+
+  resultado.textContent =
+    "Cargando configuración...";
+
+  try {
+
+    const response =
+      await fetch(
+        "https://6a0f699dd2a9857070354e65.mockapi.io/Settings"
+      );
+
+    const data =
+      await response.json();
+
+    const config = data[0];
+
+
+
+    toggles[0].checked =
+      config.notificacionEmail;
+
+    toggles[1].checked =
+      config.notificacionPush;
+
+    toggles[2].checked =
+      config.perfilPublico;
+
+    toggles[3].checked =
+      config.mostrarActividad;
+
+
+
+    resultado.textContent = "";
+
+  } catch (error) {
+
+    resultado.textContent =
+      "Error cargando configuración";
+
+    resultado.style.color = "red";
+
+  }
+
+}
+
+
+
+cargarUsuario();
+cargarToggles();
+cargarConfiguracion();
+
 });

@@ -63,6 +63,9 @@ function animarLogros() {
 }
 
 // Placeholder hasta que exista una página dedicada a todos los logros
+
+
+
 function manejarVerLogros() {
   const enlace = document.querySelector(".profile-achievements__link");
   if (!enlace) return;
@@ -73,8 +76,79 @@ function manejarVerLogros() {
   });
 }
 
+function cargarPerfil() {
+
+  const nombre =
+    document.getElementById("profile-name");
+
+  const email =
+    document.getElementById("profile-email");
+
+  const cursos =
+    document.getElementById("stat-cursos");
+
+  const retos =
+    document.getElementById("stat-retos");
+
+  const ahorro =
+    document.getElementById("stat-ahorro");
+
+
+  nombre.textContent = "Cargando...";
+  email.textContent = "Cargando...";
+
+
+
+  setTimeout(() => {
+
+    const usuario =
+      JSON.parse(
+        localStorage.getItem("usuario")
+      );
+
+
+    fetch("https://6a0f699dd2a9857070354e65.mockapi.io/Profile")
+  .then(response => response.json())
+  .then(data => {
+
+    const usuario = data[0];
+
+    nombre.textContent =
+      usuario.nombre;
+
+    email.textContent =
+      usuario.email;
+
+    cursos.textContent =
+      usuario.cursos;
+
+    retos.textContent =
+      usuario.retos;
+
+    ahorro.textContent =
+      usuario.ahorro;
+
+    iniciarContadores();
+
+  })
+  .catch(() => {
+
+    nombre.textContent =
+      "Error cargando perfil";
+
+    email.textContent =
+      "Intenta nuevamente";
+
+  });
+
+    iniciarContadores();
+
+  }, 1200);
+
+}
+
 document.addEventListener("DOMContentLoaded", function () {
-  iniciarContadores();
+  cargarPerfil();
   confirmarCerrarSesion();
   animarLogros();
   manejarVerLogros();
