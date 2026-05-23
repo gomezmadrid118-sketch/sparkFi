@@ -241,8 +241,6 @@ checkboxesNotif[1].checked =
       registrarToggle(checkboxesPrivacidad[i], clavesPrivacidad[i]);
     }
   }
-    https://6a0f699dd2a9857070354e65.mockapi.io/Settings
-
     async function cargarConfiguracion() {
 
   resultado.textContent =
