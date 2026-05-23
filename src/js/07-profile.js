@@ -98,7 +98,6 @@ function cargarPerfil() {
       JSON.parse(
         localStorage.getItem("usuario")
       );
-        https://6a0f699dd2a9857070354e65.mockapi.io/Profile
 
 
     fetch("https://6a0f699dd2a9857070354e65.mockapi.io/Profile")
