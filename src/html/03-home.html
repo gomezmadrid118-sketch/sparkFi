@@ -17,101 +17,123 @@
   </head>
 
   <body>
-    <div class="home-page">
+    <div class="inicio-pagina">
       <!-- Barra de navegación superior flotante; compartida con todas las páginas internas -->
-      <header class="home-header">
-        <div class="home-header__brand">
-          <span class="home-header__brand-icon">⚡</span>
-          <span class="home-header__brand-text">SparkFi</span>
+      <header class="inicio-encabezado">
+        <div class="inicio-encabezado__marca">
+          <span class="inicio-encabezado__marca-icono">⚡</span>
+          <span class="inicio-encabezado__marca-texto">SparkFi</span>
         </div>
 
         <!-- "Inicio" marcado como activo porque es la página actual -->
-        <nav class="home-header__nav">
-          <a href="./03-home.html" class="home-header__nav-link home-header__nav-link--active">Inicio</a>
-          <a href="./04-courses.html" class="home-header__nav-link">Cursos</a>
-          <a href="./05-challenges.html" class="home-header__nav-link">Retos</a>
-          <a href="./06-community.html" class="home-header__nav-link">Comunidad</a>
-          <a href="./07-profile.html" class="home-header__nav-link">Perfil</a>
+        <nav class="inicio-encabezado__navegacion">
+          <a href="./03-home.html" class="inicio-encabezado__enlace inicio-encabezado__enlace--activo">Inicio</a>
+          <a href="./04-courses.html" class="inicio-encabezado__enlace">Cursos</a>
+          <a href="./05-challenges.html" class="inicio-encabezado__enlace">Retos</a>
+          <a href="./06-community.html" class="inicio-encabezado__enlace">Comunidad</a>
+          <a href="./07-profile.html" class="inicio-encabezado__enlace">Perfil</a>
         </nav>
 
         <!-- El JS lo hace clickeable para navegar al perfil del usuario -->
-        <div class="home-header__user-avatar">
-          <span class="home-header__user-avatar-icon">👤</span>
+        <div class="inicio-encabezado__avatar">
+          <span class="inicio-encabezado__avatar-icono">👤</span>
         </div>
       </header>
 
-      <main class="home-content">
-        <section class="home-hero">
+      <main class="inicio-contenido">
+        <section class="inicio-hero">
           <!-- El JS reemplaza "Bienvenido" por el saludo correcto según la hora del día -->
-          <h1 class="home-hero__title">
-            Bienvenido, Juan <span class="home-hero__wave">👋</span>
+          <h1 class="inicio-hero__titulo">
+            Bienvenido, Juan <span class="inicio-hero__icono-saludo">👋</span>
           </h1>
+          <p class="inicio-bloque-cargando" data-home-cargando aria-live="polite" hidden>
+            Cargando...
+          </p>
+          <p class="inicio-bloque-error" data-home-error aria-live="polite" hidden>
+            No se pudieron cargar algunos datos. Intenta más tarde.
+          </p>
 
-          <!-- Gráfico de línea del ahorro dibujado en SVG puro, sin ninguna librería externa -->
-          <div class="home-hero__chart-panel">
-            <svg
-              class="home-hero__chart"
-              viewBox="0 0 600 260"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <rect x="0" y="0" width="600" height="260" rx="26" fill="#eef3ff" />
+          <section class="inicio-metricas" aria-label="Resumen rápido">
+            <article class="inicio-metricas__tarjeta">
+              <p class="inicio-metricas__etiqueta">Ahorro actual</p>
+              <p class="inicio-metricas__valor" data-metric="ahorro">COP 0</p>
+            </article>
 
-              <!-- Líneas horizontales de guía del gráfico -->
-              <line x1="70" y1="70" x2="550" y2="70" stroke="#d4ddff" stroke-width="1" />
-              <line x1="70" y1="120" x2="550" y2="120" stroke="#d4ddff" stroke-width="1" />
-              <line x1="70" y1="170" x2="550" y2="170" stroke="#d4ddff" stroke-width="1" />
+            <article class="inicio-metricas__tarjeta">
+              <p class="inicio-metricas__etiqueta">Meta mensual</p>
+              <p class="inicio-metricas__valor" data-metric="meta">COP 500,000</p>
+            </article>
 
-              <!-- Etiquetas del eje Y con los valores en COP -->
-              <text x="30" y="175" font-size="10" fill="#5a626e" font-family="Inter, system-ui">COP 200</text>
-              <text x="30" y="125" font-size="10" fill="#5a626e" font-family="Inter, system-ui">COP 250</text>
-              <text x="30" y="75" font-size="10" fill="#5a626e" font-family="Inter, system-ui">COP 500</text>
+            <article class="inicio-metricas__tarjeta">
+              <p class="inicio-metricas__etiqueta">Avance</p>
+              <p class="inicio-metricas__valor" data-metric="avance">0%</p>
+            </article>
+          </section>
 
-              <!-- Área sombreada azul debajo de la línea de ahorro -->
-              <path
-                d="M 80 180 L 180 140 L 260 160 L 340 150 L 460 110 L 540 70 L 540 200 L 80 200 Z"
-                fill="rgba(0,106,248,0.10)"
-              />
+          <div class="inicio-progreso" aria-label="Progreso de ahorro">
+            <div class="inicio-progreso__encabezado">
+              <span class="inicio-progreso__titulo">Ruta mensual</span>
+              <span class="inicio-progreso__valor" data-progress-text>COP 0 / COP 500,000</span>
+            </div>
 
-              <!-- Línea principal del gráfico -->
-              <path
-                d="M 80 180 L 180 140 L 260 160 L 340 150 L 460 110 L 540 70"
-                fill="none"
-                stroke="#0a3dfe"
-                stroke-width="4"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-
-              <!-- Flecha al final de la línea para indicar tendencia ascendente -->
-              <path d="M 540 70 L 530 76" stroke="#0a3dfe" stroke-width="4" stroke-linecap="round" />
-              <path d="M 540 70 L 534 60" stroke="#0a3dfe" stroke-width="4" stroke-linecap="round" />
-
-              <!-- Puntos destacados sobre los datos del gráfico -->
-              <circle cx="180" cy="140" r="6" fill="#0a3dfe" />
-              <circle cx="260" cy="160" r="6" fill="#0a3dfe" />
-              <circle cx="460" cy="110" r="6" fill="#0a3dfe" />
-            </svg>
+            <div class="inicio-progreso__barra" role="img" aria-label="Progreso de ahorro mensual">
+              <div class="inicio-progreso__relleno" data-progress-fill></div>
+            </div>
           </div>
+
+          <section class="inicio-curso-destacado" aria-label="Curso pendiente">
+            <div class="inicio-curso-destacado__contenido">
+              <p class="inicio-curso-destacado__etiqueta">Curso en pausa</p>
+              <h2 class="inicio-curso-destacado__titulo" data-last-course-title>
+                Retoma tu aprendizaje en Cursos
+              </h2>
+              <p class="inicio-curso-destacado__estado" data-last-course-status>
+                Continuar desde tu ultimo avance
+              </p>
+              <p class="inicio-curso-destacado__texto" data-last-course-copy>
+                En esta versión te llevamos directo a la sección de cursos para seguir avanzando.
+              </p>
+            </div>
+
+            <a href="./04-courses.html" class="inicio-curso-destacado__boton">
+              Ir a Cursos
+            </a>
+          </section>
+
+          <section class="inicio-tips" data-home-tips aria-label="Consejos financieros" hidden>
+            <button class="inicio-tips__boton inicio-tips__boton--izquierdo" type="button" data-tip-anterior aria-label="Tip anterior">
+              ‹
+            </button>
+            <div class="inicio-tips__contenido">
+              <div class="inicio-tips__encabezado">
+                <div class="inicio-tips__icono" data-tip-icono aria-hidden="true">🛟</div>
+                <div class="inicio-tips__texto-encabezado">
+                  <p class="inicio-tips__categoria" data-tip-categoria>EMERGENCIAS</p>
+                  <h2 class="inicio-tips__titulo" data-tip-titulo>Fondo de emergencia primero</h2>
+                </div>
+              </div>
+              <p class="inicio-tips__descripcion" data-tip-descripcion>
+                Antes de invertir, ten guardados entre 3 y 6 meses de tus gastos básicos en una cuenta accesible.
+              </p>
+            </div>
+            <button class="inicio-tips__boton inicio-tips__boton--derecho" type="button" data-tip-siguiente aria-label="Tip siguiente">
+              ›
+            </button>
+          </section>
         </section>
 
         <!-- Tres accesos rápidos a las secciones principales de la app -->
-        <section class="home-quick-access">
-          <a href="./04-courses.html" class="home-quick-access__card">
-            <div class="home-quick-access__icon">📘</div>
-            <h2 class="home-quick-access__title">Mis cursos activos</h2>
-            <p class="home-quick-access__subtitle">Haciendo</p>
+        <section class="inicio-accesos">
+          <a href="./04-courses.html" class="inicio-accesos__tarjeta">
+            <div class="inicio-accesos__icono">📘</div>
+            <h2 class="inicio-accesos__titulo">Mis cursos activos</h2>
+            <p class="inicio-accesos__subtitulo">Haciendo</p>
           </a>
 
-          <a href="./05-challenges.html" class="home-quick-access__card">
-            <div class="home-quick-access__icon">🎯</div>
-            <h2 class="home-quick-access__title">Retos financieros</h2>
-            <p class="home-quick-access__subtitle">En progreso</p>
-          </a>
-
-          <a href="./07-profile.html" class="home-quick-access__card">
-            <div class="home-quick-access__icon">💰</div>
-            <h2 class="home-quick-access__title">Mi ahorro mensual</h2>
-            <p class="home-quick-access__subtitle">COP 350,000</p>
+          <a href="./05-challenges.html" class="inicio-accesos__tarjeta">
+            <div class="inicio-accesos__icono">🎯</div>
+            <h2 class="inicio-accesos__titulo">Retos financieros</h2>
+            <p class="inicio-accesos__subtitulo">En progreso</p>
           </a>
         </section>
       </main>

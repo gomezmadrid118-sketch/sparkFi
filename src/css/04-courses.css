@@ -181,6 +181,30 @@ body {
   box-shadow: 0 0 0 3px rgba(10, 61, 254, 0.12);
 }
 
+.bloque-cargando-cursos {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid #dbe5ff;
+  background: #f3f7ff;
+  color: var(--sf-blue-strong);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.bloque-error-cursos {
+  margin-bottom: 16px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #b42318;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
 /* Botones de cada curso en el sidebar; translateX al hover da sensación de profundidad */
 .boton-tema-curso {
   display: block;
@@ -485,6 +509,38 @@ body {
 .boton-completar-leccion:hover {
   transform: translateY(-1px);
   box-shadow: 0 8px 18px rgba(34, 215, 79, 0.24);
+}
+
+/* ===================================
+   BOTONES DE ACCIÓN DE LECCIÓN
+   Estilos para los botones de "Iniciar", "Continuar" y "Completado"
+=================================== */
+.boton-leccion {
+  padding: 12px 24px;
+  border-radius: 999px;
+  border: none;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s, transform 0.2s;
+  min-width: 180px;
+  text-align: center;
+}
+
+.boton-leccion.iniciar {
+  background-color: var(--sf-blue);
+  color: white;
+}
+
+.boton-leccion.continuar {
+  background-color: var(--sf-yellow);
+  color: var(--sf-text-main);
+}
+
+.boton-leccion.completado {
+  background-color: var(--sf-green);
+  color: white;
+  cursor: not-allowed;
 }
 
 /* ===================================

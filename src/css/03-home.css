@@ -28,7 +28,7 @@ body {
 }
 
 /* Contenedor general que ocupa al menos toda la pantalla */
-.home-page {
+.inicio-pagina {
   min-height: 100vh;
   padding: 32px;
 }
@@ -37,7 +37,7 @@ body {
    HEADER DE NAVEGACIÓN
    Barra flotante con sombra y bordes redondeados; igual en todas las páginas internas
 =================================== */
-.home-header {
+.inicio-encabezado {
   max-width: 1200px;
   margin: 0 auto 32px;
   padding: 16px 28px;
@@ -51,13 +51,13 @@ body {
 }
 
 /* Logo: círculo verde con el rayo + nombre de la app */
-.home-header__brand {
+.inicio-encabezado__marca {
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
-.home-header__brand-icon {
+.inicio-encabezado__marca-icono {
   width: 30px;
   height: 30px;
   display: flex;
@@ -68,18 +68,18 @@ body {
   color: #fff;
 }
 
-.home-header__brand-text {
+.inicio-encabezado__marca-texto {
   font-size: 20px;
   font-weight: 700;
 }
 
 /* Links de navegación en fila horizontal */
-.home-header__nav {
+.inicio-encabezado__navegacion {
   display: flex;
   gap: 24px;
 }
 
-.home-header__nav-link {
+.inicio-encabezado__enlace {
   padding-bottom: 2px;
   color: var(--sf-text-soft);
   text-decoration: none;
@@ -88,17 +88,17 @@ body {
 }
 
 /* El link activo y el hover usan azul fuerte; box-shadow simula una línea subrayada */
-.home-header__nav-link:hover,
-.home-header__nav-link--active {
+.inicio-encabezado__enlace:hover,
+.inicio-encabezado__enlace--activo {
   color: var(--sf-blue-strong);
 }
 
-.home-header__nav-link--active {
+.inicio-encabezado__enlace--activo {
   box-shadow: 0 2px 0 0 var(--sf-blue-strong);
 }
 
 /* Círculo oscuro del avatar; el JS le añade cursor y navegación al perfil */
-.home-header__user-avatar-icon {
+.inicio-encabezado__avatar-icono {
   width: 36px;
   height: 36px;
   display: flex;
@@ -110,7 +110,7 @@ body {
 }
 
 /* Efecto hover en el avatar: sube levemente y se oscurece un poco */
-.home-header__user-avatar:hover .home-header__user-avatar-icon {
+.inicio-encabezado__avatar:hover .inicio-encabezado__avatar-icono {
   transform: translateY(-2px) scale(1.05);
   background: #0f172a;
 }
@@ -119,7 +119,7 @@ body {
    ÁREA PRINCIPAL DE CONTENIDO
    Tarjeta blanca que contiene el gráfico de ahorro y los accesos rápidos
 =================================== */
-.home-content {
+.inicio-contenido {
   max-width: 1200px;
   margin: 0 auto;
   padding: 40px 40px 48px;
@@ -130,43 +130,311 @@ body {
 }
 
 /* Título de bienvenida; el JS actualiza el saludo según la hora del día */
-.home-hero__title {
+.inicio-hero__titulo {
   margin-bottom: 28px;
   font-size: 40px;
   font-weight: 700;
 }
 
-.home-hero__wave {
+.inicio-hero__icono-saludo {
   font-size: 34px;
 }
 
-/* Contenedor del gráfico SVG de ahorro */
-.home-hero__chart-panel {
-  margin-bottom: 32px;
-  overflow: hidden;
-  background: #fff;
-  border: 1px solid var(--sf-border);
-  border-radius: 26px;
+.inicio-bloque-cargando {
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid #dbe5ff;
+  background: #f3f7ff;
+  color: var(--sf-blue-strong);
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(10, 61, 254, 0.12);
 }
 
-.home-hero__chart {
+.inicio-bloque-error {
+  margin-bottom: 20px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #b42318;
+  font-size: 17px;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(180, 35, 24, 0.12);
+}
+
+/* Tarjetas de métricas rápidas ubicadas debajo del saludo */
+.inicio-metricas {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.inicio-metricas__tarjeta {
+  padding: 18px 18px 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcff 100%);
+  border: 1px solid var(--sf-border);
+  border-radius: 22px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.04);
+}
+
+.inicio-metricas__etiqueta {
+  color: var(--sf-text-soft);
+  font-size: 13px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.inicio-metricas__valor {
+  color: var(--sf-text-main);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+/* Barra de progreso para resumir el avance del ahorro mensual */
+.inicio-progreso {
+  margin-bottom: 28px;
+  padding: 16px 18px 18px;
+  background: #f8fbff;
+  border: 1px solid var(--sf-border);
+  border-radius: 22px;
+}
+
+.inicio-progreso__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.inicio-progreso__titulo {
+  color: var(--sf-text-main);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.inicio-progreso__valor {
+  color: var(--sf-text-soft);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.inicio-progreso__barra {
+  height: 12px;
+  background: #eaf0ff;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.inicio-progreso__relleno {
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--sf-blue), var(--sf-blue-strong));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.2);
+  transition: width 0.5s ease;
+}
+
+/* Bloque de curso pendiente con CTA directo a la vista de cursos */
+.inicio-curso-destacado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 28px;
+  padding: 20px 22px;
+  background: linear-gradient(135deg, #f7fbff 0%, #eef4ff 100%);
+  border: 1px solid #dbe5ff;
+  border-radius: 24px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.inicio-curso-destacado:hover {
+  transform: translateY(-2px);
+  border-color: #cdd9ff;
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.08);
+}
+
+.inicio-curso-destacado__contenido {
+  min-width: 0;
+}
+
+.inicio-curso-destacado__etiqueta {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: rgba(10, 61, 254, 0.08);
+  color: var(--sf-blue-strong);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.inicio-curso-destacado__titulo {
+  color: var(--sf-text-main);
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.inicio-curso-destacado__estado {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(34, 215, 79, 0.14);
+  color: #157a31;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.inicio-curso-destacado__texto {
+  color: var(--sf-text-soft);
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 620px;
+}
+
+.inicio-curso-destacado__boton {
+  flex-shrink: 0;
+  min-height: 46px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: var(--sf-blue-strong);
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 10px 22px rgba(10, 61, 254, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.inicio-curso-destacado__boton:hover {
+  transform: translateY(-2px);
+  background: var(--sf-blue);
+  box-shadow: 0 14px 28px rgba(10, 61, 254, 0.24);
+}
+
+/* Tarjeta rotativa de tips financieros */
+.inicio-tips {
+  position: relative;
+  margin-bottom: 32px;
+  padding: 26px 86px;
+  background: #e8ecf6;
+  border: 1px solid #d6ddec;
+  border-radius: 30px;
+  box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
+}
+
+.inicio-tips__contenido {
   width: 100%;
-  height: auto;
-  display: block;
+}
+
+.inicio-tips__encabezado {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.inicio-tips__icono {
+  width: 78px;
+  height: 78px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20px;
+  background: #f3f5fb;
+  border: 1px solid #cbd5e7;
+  font-size: 34px;
+}
+
+.inicio-tips__texto-encabezado {
+  min-width: 0;
+}
+
+.inicio-tips__categoria {
+  margin-bottom: 6px;
+  color: var(--sf-blue-strong);
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.inicio-tips__titulo {
+  color: #111a2f;
+  font-size: 38px;
+  line-height: 1.08;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.inicio-tips__descripcion {
+  margin-left: 96px;
+  color: #22355f;
+  font-size: 31px;
+  line-height: 1.34;
+  max-width: 920px;
+}
+
+.inicio-tips__boton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  border: 1px solid #d4d9e5;
+  border-radius: 50%;
+  background: #eff2f8;
+  color: #6b7280;
+  font-size: 34px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.inicio-tips__boton--izquierdo {
+  left: 18px;
+}
+
+.inicio-tips__boton--derecho {
+  right: 18px;
+}
+
+.inicio-tips__boton:hover {
+  transform: translateY(calc(-50% - 1px));
+  background: #e5e9f2;
+  color: #4b5563;
 }
 
 /* ===================================
    ACCESOS RÁPIDOS
    Tres tarjetas en grilla que llevan a cursos, retos y ahorro
 =================================== */
-.home-quick-access {
+.inicio-accesos {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 18px;
 }
 
 /* Cada tarjeta es un enlace que actúa como bloque completo */
-.home-quick-access__card {
+.inicio-accesos__tarjeta {
   display: block;
   padding: 22px 18px;
   background: var(--sf-surface);
@@ -178,14 +446,18 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
-.home-quick-access__card:hover {
-  transform: translateY(-2px);
+.inicio-accesos__tarjeta:hover {
+  transform: translateY(-6px);
   border-color: #cdd6ef;
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 18px 34px rgba(15, 23, 42, 0.12);
+}
+
+.inicio-accesos__tarjeta:hover .inicio-accesos__icono {
+  transform: scale(1.06);
 }
 
 /* Cuadrado redondeado con fondo azul suave que contiene el emoji del acceso rápido */
-.home-quick-access__icon {
+.inicio-accesos__icono {
   width: 48px;
   height: 48px;
   margin-bottom: 10px;
@@ -196,15 +468,16 @@ body {
   border-radius: 16px;
   color: var(--sf-blue-strong);
   font-size: 24px;
+  transition: transform 0.2s ease;
 }
 
-.home-quick-access__title {
+.inicio-accesos__titulo {
   color: var(--sf-text-main);
   font-size: 16px;
   font-weight: 600;
 }
 
-.home-quick-access__subtitle {
+.inicio-accesos__subtitulo {
   color: var(--sf-text-soft);
   font-size: 13px;
 }
@@ -214,19 +487,89 @@ body {
    En móvil la grilla pasa a una sola columna y se reduce el padding
 =================================== */
 @media (max-width: 900px) {
-  .home-page {
+  .inicio-pagina {
     padding: 16px;
   }
 
-  .home-content {
+  .inicio-contenido {
     padding: 24px 20px 32px;
   }
 
-  .home-hero__title {
+  .inicio-hero__titulo {
     font-size: 32px;
   }
 
-  .home-quick-access {
+  .inicio-metricas {
+    grid-template-columns: 1fr;
+  }
+
+  .inicio-progreso__encabezado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inicio-curso-destacado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .inicio-curso-destacado__boton {
+    width: 100%;
+  }
+
+  .inicio-tips {
+    padding: 20px;
+    border-radius: 24px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: end;
+    gap: 10px;
+  }
+
+  .inicio-tips__encabezado {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .inicio-tips__icono {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    font-size: 28px;
+  }
+
+  .inicio-tips__categoria {
+    font-size: 12px;
+  }
+
+  .inicio-tips__titulo {
+    font-size: 26px;
+  }
+
+  .inicio-tips__descripcion {
+    margin-left: 0;
+    font-size: 18px;
+  }
+
+  .inicio-tips__boton {
+    position: static;
+    transform: none;
+    width: 44px;
+    height: 44px;
+    font-size: 28px;
+  }
+
+  .inicio-tips__boton:hover {
+    transform: translateY(-1px);
+  }
+
+  .inicio-tips__contenido {
+    grid-column: 1 / -1;
+    margin-bottom: 8px;
+  }
+
+  .inicio-accesos {
     grid-template-columns: 1fr;
   }
 }
