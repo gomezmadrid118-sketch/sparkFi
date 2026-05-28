@@ -1,218 +1,279 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const API_RETOS_URL = 'https://api.sparkfi.com/v1/challenges';
-    const metaTotal = 50000;
+document.addEventListener("DOMContentLoaded", function () {
+  const API_RETOS_URL = "https://jsonplaceholder.typicode.com/todos?_limit=6";
+  const metaTotal = 50000;
 
-    // --- MANEJO DE DATOS PERSISTENTES (LOCALSTORAGE) ---
-    let ahorroActual = parseFloat(localStorage.getItem('sparkfi_ahorro_actual')) || 25000;
-    let contadorDepositos = parseInt(localStorage.getItem('sparkfi_contador_depositos')) || 0;
-    let retosAceptadosIds = JSON.parse(localStorage.getItem('sparkfi_retos_aceptados')) || [];
+  let ahorroActual = Number(localStorage.getItem("sparkfi_ahorro_actual")) || 25000;
+  let contadorDepositos =
+    Number(localStorage.getItem("sparkfi_contador_depositos")) || 0;
+  let retosAceptadosIds =
+    JSON.parse(localStorage.getItem("sparkfi_retos_aceptados")) || [];
 
-    const challengeSection = document.querySelector('.challenge');
-    const barraFill = document.querySelector('.progress-fill');
-    const textoProgreso = document.querySelector('.progress-text');
-    const botonesUnirse = document.querySelectorAll('.btn-join');
-    const listaLogros = document.querySelectorAll('.achievement');
+  const challengeSection = document.querySelector(".challenge");
+  const listaDisponibles = document.querySelector(".available-list");
+  const listaLogros = document.querySelectorAll(".achievement");
 
-    async function cargarModuloRetos() {
-        console.log("â³ SparkFi API: Sincronizando tus metas de ahorro...");
-        try {
-            await new Promise(resolve => setTimeout(resolve, 600));
-            inicializarRetos();
-        } catch (error) {
-            inicializarRetos();
-        }
+  function capitalizar(texto) {
+    if (!texto) return "Reto financiero";
+    return texto.charAt(0).toUpperCase() + texto.slice(1);
+  }
+
+  function crearTituloReto(tarea, index) {
+    return "Reto " + (index + 1) + ": " + capitalizar(tarea.title);
+  }
+
+  async function obtenerRetosApi() {
+    const respuesta = await fetch(API_RETOS_URL);
+
+    if (!respuesta.ok) {
+      throw new Error("No se pudieron consultar los retos.");
     }
 
-    function inicializarRetos() {
-        // 1. IntegraciÃ³n limpia del botÃ³n de depÃ³sitos
-        if (challengeSection && !document.getElementById('btn-depositar-dinamico')) {
-            const btnSimulador = document.createElement('button');
-            btnSimulador.id = "btn-depositar-dinamico";
-            configurarBotonDepositoTexto(btnSimulador);
-            btnSimulador.style.cssText = "background: #16a34a; color: white; border: none; padding: 12px 16px; border-radius: 12px; cursor: pointer; font-weight: bold; font-family: 'Inter', sans-serif; font-size: 14px; margin-top: 15px; width: 100%; transition: all 0.3s ease; box-shadow: 0 4px 6px -1px rgba(22, 163, 74, 0.2);";
-            
-            challengeSection.appendChild(btnSimulador);
+    const datos = await respuesta.json();
 
-            btnSimulador.addEventListener('click', () => {
-                if (ahorroActual < metaTotal) {
-                    contadorDepositos++;
-                    localStorage.setItem('sparkfi_contador_depositos', contadorDepositos);
-                    actualizarGraficaProgreso(5000);
-                    configurarBotonDepositoTexto(btnSimulador);
-                }
-            });
-        }
+    return datos.map(function (tarea, index) {
+      return {
+        id: "reto-api-" + tarea.id,
+        titulo: crearTituloReto(tarea, index),
+        nivel: tarea.completed ? "Intermedio" : "Basico",
+        duracion: 7 + index + " dias",
+        bono: index === 0 ? 3000 : 5000,
+      };
+    });
+  }
 
-        // 2. IntegraciÃ³n limpia del botÃ³n para Restaurar/Reiniciar ahorros
-        if (textoProgreso && !document.getElementById('btn-reset-sparkfi')) {
-            if (textoProgreso.parentElement) {
-                textoProgreso.parentElement.style.position = "relative";
-            }
-            
-            const btnReset = document.createElement('button');
-            btnReset.id = "btn-reset-sparkfi";
-            btnReset.innerHTML = "ðŸ”„ Reiniciar Ahorros";
-            btnReset.style.cssText = "background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 600; font-family: 'Inter', sans-serif; margin-left: 15px; transition: background 0.2s;";
-            
-            btnReset.onmouseover = () => btnReset.style.background = "#dc2626";
-            btnReset.onmouseout = () => btnReset.style.background = "#ef4444";
-            
-            btnReset.addEventListener('click', () => {
-                if(confirm("Â¿Quieres restablecer el simulador a sus valores iniciales?")) {
-                    localStorage.removeItem('sparkfi_ahorro_actual');
-                    localStorage.removeItem('sparkfi_contador_depositos');
-                    localStorage.removeItem('sparkfi_retos_aceptados');
-                    alert("Progreso restaurado con Ã©xito.");
-                    window.location.reload();
-                }
-            });
-            
-            textoProgreso.after(btnReset);
-        }
+  function mostrarEstadoRetos(texto, tipo) {
+    if (challengeSection) {
+      challengeSection.innerHTML = "";
 
-        actualizarGraficaProgreso(0);
-        reconstruirYVincularRetosOriginales();
+      const titulo = document.createElement("h2");
+      titulo.className = "challenge-title";
+      titulo.dataset.estado = tipo;
+      titulo.textContent = texto;
+
+      challengeSection.appendChild(titulo);
     }
 
-    function configurarBotonDepositoTexto(boton) {
-        if (ahorroActual >= metaTotal) {
-            boton.innerText = "Â¡Meta Cumplida! ðŸ† Reto Finalizado";
-            boton.style.background = "linear-gradient(135deg, #eab308, #ca8a04)";
-            boton.style.boxShadow = "0 4px 12px rgba(234, 179, 8, 0.4)";
-            boton.style.cursor = "default";
-        } else {
-            boton.innerText = contadorDepositos > 0 
-                ? `ðŸ’° DepÃ³sito #${contadorDepositos} registrado (+$5.000)`
-                : "ðŸ’° Registrar depÃ³sito (+$5.000)";
-            boton.style.background = "#16a34a";
-            boton.style.cursor = "pointer";
-        }
+    if (listaDisponibles) {
+      listaDisponibles.innerHTML = "";
+    }
+  }
+
+  function actualizarVistaProgreso() {
+    const barraFill = document.querySelector(".progress-fill");
+    const textoProgreso = document.querySelector(".progress-text");
+    const porcentaje = Math.min((ahorroActual / metaTotal) * 100, 100);
+
+    if (barraFill) {
+      barraFill.style.width = porcentaje + "%";
     }
 
-    function actualizarGraficaProgreso(incremento) {
-        ahorroActual += incremento;
-        if (ahorroActual > metaTotal) ahorroActual = metaTotal;
-
-        localStorage.setItem('sparkfi_ahorro_actual', ahorroActual);
-
-        const porcentaje = (ahorroActual / metaTotal) * 100;
-        if (barraFill) barraFill.style.width = `${porcentaje}%`;
-
-        if (textoProgreso) {
-            textoProgreso.innerText = `Progreso: $${ahorroActual.toLocaleString()} / $${metaTotal.toLocaleString()}`;
-        }
-
-        // IluminaciÃ³n dinÃ¡mica de logros
-        if (ahorroActual >= 35000 && listaLogros[1]) {
-            iluminarLogroConColor(listaLogros[1], "#2563eb", "#dbeafe", "ðŸŽ‰ Â¡Inversor Novato!");
-        } else if (listaLogros[1]) {
-            restaurarLogroAGris(listaLogros[1], "Inversor novato", "Alcanza los $35,000 en ahorros.");
-        }
-
-        if (ahorroActual >= metaTotal && listaLogros[2]) {
-            iluminarLogroConColor(listaLogros[2], "#16a34a", "#dcfce7", "ðŸ† Â¡Maestro del Ahorro!");
-        } else if (listaLogros[2]) {
-            restaurarLogroAGris(listaLogros[2], "Maestro del ahorro", "Completa el 100% de tu meta activa.");
-        }
+    if (textoProgreso) {
+      textoProgreso.textContent =
+        "Progreso: $" +
+        ahorroActual.toLocaleString("es-CO") +
+        " / $" +
+        metaTotal.toLocaleString("es-CO");
     }
 
-    function iluminarLogroConColor(nodoLogro, colorFuerte, colorFondo, nuevoTitulo) {
-        nodoLogro.classList.remove('achievement-inactive');
-        nodoLogro.classList.add('achievement-active');
-        nodoLogro.style.border = `2px solid ${colorFuerte}`;
-        nodoLogro.style.background = "#ffffff";
-        nodoLogro.style.transform = "scale(1.03)";
-        nodoLogro.style.boxShadow = `0 10px 15px -3px rgba(0,0,0,0.05), 0 4px 6px -4px ${colorFuerte}33`;
+    actualizarLogros();
+  }
 
-        const iconContainer = nodoLogro.querySelector('.achievement-icon') || nodoLogro.querySelector('div');
-        if (iconContainer) { iconContainer.style.background = colorFondo; iconContainer.style.color = colorFuerte; }
-        const label = nodoLogro.querySelector('.achievement-label');
-        if (label) { label.innerText = nuevoTitulo; label.style.color = colorFuerte; label.style.fontWeight = "800"; }
-        const hint = nodoLogro.querySelector('.achievement-hint');
-        if (hint) hint.innerText = "Â¡Completado y validado! âœ”";
+  function actualizarGraficaProgreso(incremento) {
+    ahorroActual += incremento;
+
+    if (ahorroActual > metaTotal) {
+      ahorroActual = metaTotal;
     }
 
-    function restaurarLogroAGris(nodoLogro, tituloOriginal, pistaOriginal) {
-        nodoLogro.classList.remove('achievement-active');
-        nodoLogro.classList.add('achievement-inactive');
-        nodoLogro.style.border = ""; nodoLogro.style.background = ""; nodoLogro.style.transform = ""; nodoLogro.style.boxShadow = "";
-        const iconContainer = nodoLogro.querySelector('.achievement-icon') || nodoLogro.querySelector('div');
-        if (iconContainer) { iconContainer.style.background = ""; iconContainer.style.color = ""; }
-        const label = nodoLogro.querySelector('.achievement-label');
-        if (label) { label.innerText = tituloOriginal; label.style.color = ""; label.style.fontWeight = ""; }
-        const hint = nodoLogro.querySelector('.achievement-hint');
-        if (hint) hint.innerText = pistaOriginal;
+    localStorage.setItem("sparkfi_ahorro_actual", String(ahorroActual));
+    actualizarVistaProgreso();
+  }
+
+  function actualizarLogros() {
+    if (listaLogros[1]) {
+      const desbloqueado = ahorroActual >= 35000;
+      listaLogros[1].classList.toggle("achievement-active", desbloqueado);
+      listaLogros[1].classList.toggle("achievement-inactive", !desbloqueado);
+
+      const etiqueta = listaLogros[1].querySelector(".achievement-label");
+      if (etiqueta && desbloqueado) {
+        etiqueta.textContent = "Inversor novato desbloqueado";
+      }
     }
 
-    // Vincula eventos manteniendo toda tu grilla de retos intacta sin quitar nada
-    function reconstruirYVincularRetosOriginales() {
-        botonesUnirse.forEach((boton, indice) => {
-            const idUnicoReto = `reto_base_index_${indice}`;
-            
-            // Si ya estaba guardado en LocalStorage como aceptado, actualizar estado visual inmediatamente
-            if (retosAceptadosIds.includes(idUnicoReto)) {
-                const tarjetaReto = boton.closest('.challenge-card') || boton.parentElement;
-                const tituloReto = tarjetaReto.querySelector('h3')?.innerText || "Reto Activo";
-                const bonoDinero = (indice === 0) ? 3000 : 5000;
+    if (listaLogros[2]) {
+      const desbloqueado = ahorroActual >= metaTotal;
+      listaLogros[2].classList.toggle("achievement-active", desbloqueado);
+      listaLogros[2].classList.toggle("achievement-inactive", !desbloqueado);
 
-                marcarBotonComoAceptado(boton, bonoDinero);
-                crearTarjetaActivaEnPantalla(tituloReto);
-            }
+      const etiqueta = listaLogros[2].querySelector(".achievement-label");
+      if (etiqueta && desbloqueado) {
+        etiqueta.textContent = "Maestro del ahorro";
+      }
+    }
+  }
 
-            // Configurar el click para los que no se han aceptado aÃºn
-            boton.addEventListener('click', () => {
-                if (!retosAceptadosIds.includes(idUnicoReto)) {
-                    retosAceptadosIds.push(idUnicoReto);
-                    localStorage.setItem('sparkfi_retos_aceptados', JSON.stringify(retosAceptadosIds));
-                    
-                    const tarjetaReto = boton.closest('.challenge-card') || boton.parentElement;
-                    const tituloReto = tarjetaReto.querySelector('h3')?.innerText || "Reto Financiero";
-                    const bonoDinero = (indice === 0) ? 3000 : 5000;
+  function renderizarRetoActivo(reto) {
+    if (!challengeSection || !reto) return;
 
-                    marcarBotonComoAceptado(boton, bonoDinero);
-                    actualizarGraficaProgreso(bonoDinero);
-                    crearTarjetaActivaEnPantalla(tituloReto);
-                    
-                    const btnDep = document.getElementById('btn-depositar-dinamico');
-                    if(btnDep) configurarBotonDepositoTexto(btnDep);
-                }
-            });
-        });
+    challengeSection.innerHTML = "";
+
+    const titulo = document.createElement("h2");
+    titulo.className = "challenge-title";
+    titulo.textContent = reto.titulo;
+
+    const barra = document.createElement("div");
+    barra.className = "progress-bar";
+
+    const relleno = document.createElement("div");
+    relleno.className = "progress-fill";
+    barra.appendChild(relleno);
+
+    const progreso = document.createElement("p");
+    progreso.className = "progress-text";
+
+    const vencimiento = document.createElement("p");
+    vencimiento.className = "challenge-deadline";
+    vencimiento.textContent = "Vence el domingo";
+
+    const botonDeposito = document.createElement("button");
+    botonDeposito.id = "btn-depositar-dinamico";
+    botonDeposito.type = "button";
+    botonDeposito.className = "btn-join";
+
+    function actualizarBotonDeposito() {
+      if (ahorroActual >= metaTotal) {
+        botonDeposito.textContent = "Meta cumplida";
+        botonDeposito.disabled = true;
+        return;
+      }
+
+      botonDeposito.textContent =
+        contadorDepositos > 0
+          ? "Deposito #" + contadorDepositos + " registrado (+$5.000)"
+          : "Registrar deposito (+$5.000)";
     }
 
-    function marcarBotonComoAceptado(boton, bono) {
-        boton.innerText = `Aceptado (+ $${bono.toLocaleString()}) âœ”`;
-        boton.style.background = "#f1f5f9";
-        boton.style.color = "#94a3b8";
-        boton.disabled = true;
-    }
+    botonDeposito.addEventListener("click", function () {
+      if (ahorroActual >= metaTotal) return;
 
-    function crearTarjetaActivaEnPantalla(titulo) {
-        if (challengeSection) {
-            // Validar que no se duplique visualmente en la misma sesiÃ³n
-            const existentes = challengeSection.querySelectorAll('.replica-retos-dinamica');
-            let yaExiste = false;
-            existentes.forEach(el => {
-                if(el.innerText.includes(titulo)) yaExiste = true;
-            });
-            
-            if(!yaExiste) {
-                const replicaActiva = document.createElement('div');
-                replicaActiva.className = "replica-retos-dinamica";
-                replicaActiva.style.cssText = "background: #ffffff; border: 2px dashed #2563eb; padding: 12px; border-radius: 14px; margin-top: 10px;";
-                replicaActiva.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <span style="background: #e0f2fe; color: #0369a1; font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 10px; display: inline-block; margin-bottom: 3px;">RETO ADQUIRIDO ðŸ”¥</span>
-                            <h4 style="margin: 0; font-size: 14px; color: #1e293b;">${titulo}</h4>
-                        </div>
-                        <span style="font-size: 18px;">âš¡</span>
-                    </div>
-                `;
-                challengeSection.appendChild(replicaActiva);
-            }
-        }
-    }
+      contadorDepositos++;
+      localStorage.setItem("sparkfi_contador_depositos", String(contadorDepositos));
+      actualizarGraficaProgreso(5000);
+      actualizarBotonDeposito();
+    });
 
-    cargarModuloRetos();
+    challengeSection.appendChild(titulo);
+    challengeSection.appendChild(barra);
+    challengeSection.appendChild(progreso);
+    challengeSection.appendChild(vencimiento);
+    challengeSection.appendChild(botonDeposito);
+
+    actualizarVistaProgreso();
+    actualizarBotonDeposito();
+  }
+
+  function marcarBotonComoAceptado(boton, bono) {
+    boton.textContent = "Aceptado (+$" + bono.toLocaleString("es-CO") + ")";
+    boton.disabled = true;
+  }
+
+  function crearTarjetaActivaEnPantalla(titulo) {
+    if (!challengeSection) return;
+
+    const existente = Array.from(
+      challengeSection.querySelectorAll(".replica-retos-dinamica"),
+    ).some(function (elemento) {
+      return elemento.textContent.includes(titulo);
+    });
+
+    if (existente) return;
+
+    const tarjeta = document.createElement("div");
+    tarjeta.className = "replica-retos-dinamica";
+
+    const etiqueta = document.createElement("span");
+    etiqueta.textContent = "Reto adquirido";
+
+    const nombre = document.createElement("h4");
+    nombre.textContent = titulo;
+
+    tarjeta.appendChild(etiqueta);
+    tarjeta.appendChild(nombre);
+    challengeSection.appendChild(tarjeta);
+  }
+
+  function renderizarRetosDisponibles(retos) {
+    if (!listaDisponibles) return;
+
+    listaDisponibles.innerHTML = "";
+
+    retos.slice(1).forEach(function (reto) {
+      const tarjeta = document.createElement("article");
+      tarjeta.className = "available-card";
+
+      const info = document.createElement("div");
+      info.className = "available-info";
+
+      const icono = document.createElement("span");
+      icono.className = "available-icon";
+      icono.textContent = "$";
+
+      const textos = document.createElement("div");
+
+      const titulo = document.createElement("h3");
+      titulo.className = "available-title";
+      titulo.textContent = reto.titulo;
+
+      const meta = document.createElement("p");
+      meta.className = "available-meta";
+      meta.textContent = "Nivel: " + reto.nivel + " - " + reto.duracion;
+
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.className = "btn-join";
+      boton.textContent = "Unirse";
+
+      if (retosAceptadosIds.includes(reto.id)) {
+        marcarBotonComoAceptado(boton, reto.bono);
+        crearTarjetaActivaEnPantalla(reto.titulo);
+      }
+
+      boton.addEventListener("click", function () {
+        if (retosAceptadosIds.includes(reto.id)) return;
+
+        retosAceptadosIds.push(reto.id);
+        localStorage.setItem(
+          "sparkfi_retos_aceptados",
+          JSON.stringify(retosAceptadosIds),
+        );
+
+        marcarBotonComoAceptado(boton, reto.bono);
+        actualizarGraficaProgreso(reto.bono);
+        crearTarjetaActivaEnPantalla(reto.titulo);
+      });
+
+      textos.appendChild(titulo);
+      textos.appendChild(meta);
+      info.appendChild(icono);
+      info.appendChild(textos);
+      tarjeta.appendChild(info);
+      tarjeta.appendChild(boton);
+      listaDisponibles.appendChild(tarjeta);
+    });
+  }
+
+  async function cargarModuloRetos() {
+    try {
+      mostrarEstadoRetos("Cargando retos...", "cargando");
+
+      const retos = await obtenerRetosApi();
+      renderizarRetoActivo(retos[0]);
+      renderizarRetosDisponibles(retos);
+    } catch (error) {
+      mostrarEstadoRetos("No se pudieron cargar los retos. Intenta mas tarde.", "error");
+    }
+  }
+
+  cargarModuloRetos();
 });

@@ -55,17 +55,21 @@ function renderizarEstudiantes(estudiantes) {
   contenedorEstudiantes.appendChild(fragmento);
 }
 
-async function obtenerEstudiantes() {
+async function consultarEstudiantes() {
+  const respuesta = await fetch(API_ESTUDIANTES);
+
+  if (!respuesta.ok) {
+    throw new Error("Error al consultar estudiantes");
+  }
+
+  return await respuesta.json();
+}
+
+async function cargarEstudiantes() {
   try {
     mostrarMensajeEstado("Cargando estudiantes...", "cargando");
 
-    const respuesta = await fetch(API_ESTUDIANTES);
-
-    if (!respuesta.ok) {
-      throw new Error("Error al consultar estudiantes");
-    }
-
-    const estudiantes = await respuesta.json();
+    const estudiantes = await consultarEstudiantes();
     renderizarEstudiantes(estudiantes);
   } catch (error) {
     mostrarMensajeEstado(
@@ -75,4 +79,4 @@ async function obtenerEstudiantes() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", obtenerEstudiantes);
+document.addEventListener("DOMContentLoaded", cargarEstudiantes);
