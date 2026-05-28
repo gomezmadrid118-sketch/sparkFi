@@ -1,5 +1,6 @@
 const API_PROFILE = "https://6a0f699dd2a9857070354e65.mockapi.io/Profile";
 
+// Anima los números del perfil para que las estadísticas no aparezcan de golpe.
 function animarContador(elemento, duracion) {
   const texto = elemento.textContent.trim();
   const esDinero = texto.startsWith("$");
@@ -22,12 +23,14 @@ function animarContador(elemento, duracion) {
   })();
 }
 
+// Recorre todos los indicadores numéricos del sidebar y les aplica la animación.
 function iniciarContadores() {
   document.querySelectorAll(".profile-sidebar__stat-value").forEach(function (el) {
     animarContador(el, 1200);
   });
 }
 
+// Pide confirmación antes de cerrar sesión para evitar salidas accidentales.
 function confirmarCerrarSesion() {
   const enlace = document.querySelector(".profile-sidebar__logout-link");
   if (!enlace) return;
@@ -40,6 +43,7 @@ function confirmarCerrarSesion() {
   });
 }
 
+// Aplica una aparición escalonada a las tarjetas de logros.
 function animarLogros() {
   document.querySelectorAll(".profile-achievements__card").forEach(function (tarjeta, i) {
     tarjeta.style.opacity = "0";
@@ -53,6 +57,7 @@ function animarLogros() {
   });
 }
 
+// Mantiene controlado el enlace de "Ver todos" mientras no exista una pantalla dedicada.
 function manejarVerLogros() {
   const enlace = document.querySelector(".profile-achievements__link");
   if (!enlace) return;
@@ -63,6 +68,36 @@ function manejarVerLogros() {
   });
 }
 
+// Recupera datos guardados localmente si la API de perfil todavía no tiene registros.
+function obtenerPerfilLocal() {
+  const usuarioSesion = sessionStorage.getItem("usuarioSparkFi");
+  const usuarioLocal = localStorage.getItem("usuario");
+  const raw = usuarioSesion || usuarioLocal;
+
+  if (!raw) {
+    return {
+      nombre: "Usuario SparkFi",
+      email: "sin-correo@sparkfi.com",
+      cursos: 0,
+      retos: 0,
+      ahorro: 0,
+    };
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    return {
+      nombre: "Usuario SparkFi",
+      email: "sin-correo@sparkfi.com",
+      cursos: 0,
+      retos: 0,
+      ahorro: 0,
+    };
+  }
+}
+
+// Consulta la API de perfil; si está vacía, usa datos temporales para mantener la pantalla funcional.
 async function obtenerPerfil() {
   const respuesta = await fetch(API_PROFILE);
 
@@ -71,9 +106,10 @@ async function obtenerPerfil() {
   }
 
   const datos = await respuesta.json();
-  return Array.isArray(datos) ? datos[0] : datos;
+  return Array.isArray(datos) ? datos[0] || obtenerPerfilLocal() : datos;
 }
 
+// Convierte el ahorro recibido en texto monetario para la tarjeta de estadísticas.
 function formatearAhorro(valor) {
   const numero = Number(String(valor || "").replace(/[^\d.-]/g, ""));
 
@@ -84,6 +120,7 @@ function formatearAhorro(valor) {
   return "$" + numero.toLocaleString("en-US");
 }
 
+// Estado inicial mientras se espera la respuesta de la API.
 function mostrarEstadoPerfil(texto) {
   const nombre = document.getElementById("profile-name");
   const email = document.getElementById("profile-email");
@@ -98,6 +135,7 @@ function mostrarEstadoPerfil(texto) {
   if (ahorro) ahorro.textContent = "$0";
 }
 
+// Pinta en el DOM el perfil obtenido desde API o desde almacenamiento temporal.
 function renderizarPerfil(usuario) {
   const nombre = document.getElementById("profile-name");
   const email = document.getElementById("profile-email");
@@ -114,6 +152,7 @@ function renderizarPerfil(usuario) {
   iniciarContadores();
 }
 
+// Controla el ciclo de carga del perfil: estado de carga, consulta, render y error.
 async function cargarPerfil() {
   try {
     mostrarEstadoPerfil("Cargando...");
@@ -127,7 +166,7 @@ async function cargarPerfil() {
     if (nombre) nombre.textContent = "Error cargando perfil";
     if (email) email.textContent = "Intenta nuevamente";
   }
-}
+  }
 
 document.addEventListener("DOMContentLoaded", function () {
   cargarPerfil();

@@ -1,11 +1,13 @@
 const API_SETTINGS = "https://6a0f699dd2a9857070354e65.mockapi.io/Settings";
 
+// Usuario base para que la pantalla funcione aunque todavía no exista backend de sesión.
 const USUARIO_SESION = {
   nombre: "Juan Perez",
   email: "juan.perez@example.com",
   password: "sparkfi123",
 };
 
+// Preferencias base; luego pueden ser reemplazadas por localStorage o por la API.
 const preferencias = {
   notificacionEmail: true,
   notificacionPush: true,
@@ -13,6 +15,7 @@ const preferencias = {
   mostrarActividad: true,
 };
 
+// Si ya se editó el usuario en esta misma máquina, se recupera para llenar el formulario.
 const usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
 if (usuarioGuardado) {
   USUARIO_SESION.nombre = usuarioGuardado.nombre || USUARIO_SESION.nombre;
@@ -20,6 +23,7 @@ if (usuarioGuardado) {
   USUARIO_SESION.password = usuarioGuardado.password || USUARIO_SESION.password;
 }
 
+// Las preferencias guardadas localmente tienen prioridad antes de consultar configuración remota.
 const preferenciasGuardadas = JSON.parse(localStorage.getItem("preferencias"));
 if (preferenciasGuardadas) {
   preferencias.notificacionEmail =
@@ -32,15 +36,18 @@ if (preferenciasGuardadas) {
     preferenciasGuardadas.mostrarActividad ?? preferencias.mostrarActividad;
 }
 
+// Valida formato básico de email para evitar guardar correos imposibles.
 function validarFormatoEmail(email) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(email);
 }
 
+// Regla mínima para aceptar una nueva contraseña.
 function validarLongitudPassword(password) {
   return password.length >= 6;
 }
 
+// Muestra mensajes de éxito, carga o error dentro de la sección correspondiente.
 function mostrarMensaje(area, texto, tipo) {
   const classByType = {
     exito: "settings-form__message--success",
@@ -59,6 +66,7 @@ function mostrarMensaje(area, texto, tipo) {
   area.appendChild(div);
 }
 
+// Pinta una lista de errores para que el usuario pueda corregir varios campos a la vez.
 function mostrarErrores(area, errores) {
   area.innerHTML = "";
 
@@ -80,6 +88,7 @@ function mostrarErrores(area, errores) {
   area.appendChild(lista);
 }
 
+// Reúne las reglas de validación para nombre y correo del perfil.
 function validarPerfil(nombre, email) {
   const errores = [];
 
@@ -96,6 +105,7 @@ function validarPerfil(nombre, email) {
   return errores;
 }
 
+// Guarda los cambios básicos de perfil en localStorage y actualiza el mensaje del DOM.
 function manejarGuardarPerfil() {
   const inputNombre = document.getElementById("edit-nombre");
   const inputEmail = document.getElementById("edit-email");
@@ -117,11 +127,13 @@ function manejarGuardarPerfil() {
   mostrarMensaje(resultadoArea, "Perfil actualizado correctamente.", "exito");
 }
 
+// Acción temporal para una función que todavía no tiene implementación real.
 function manejarCambioFoto() {
   const resultadoArea = document.getElementById("resultado-perfil");
   mostrarMensaje(resultadoArea, "Cambio de foto disponible proximamente.", "error");
 }
 
+// Valida el cambio de contraseña comparando contra la contraseña guardada temporalmente.
 function validarCambioPassword(actual, nueva, confirmar) {
   const errores = [];
 
@@ -141,12 +153,14 @@ function validarCambioPassword(actual, nueva, confirmar) {
   return errores;
 }
 
+// Limpia los campos sensibles después de cambiar la contraseña.
 function limpiarCamposPassword() {
   document.getElementById("password-actual").value = "";
   document.getElementById("password-nueva").value = "";
   document.getElementById("password-confirmar").value = "";
 }
 
+// Aplica las validaciones de contraseña y guarda el nuevo valor temporalmente.
 function manejarCambioPassword() {
   const actual = document.getElementById("password-actual").value;
   const nueva = document.getElementById("password-nueva").value;
@@ -166,6 +180,7 @@ function manejarCambioPassword() {
   mostrarMensaje(resultadoArea, "Contrasena actualizada exitosamente.", "exito");
 }
 
+// Conecta cada toggle con una clave de preferencias y la persiste cuando cambia.
 function registrarToggle(checkbox, clave) {
   checkbox.addEventListener("change", function () {
     preferencias[clave] = checkbox.checked;
@@ -173,6 +188,7 @@ function registrarToggle(checkbox, clave) {
   });
 }
 
+// Convierte valores booleanos que pueden llegar como boolean real o como texto desde la API.
 function leerBooleano(valor, valorActual) {
   if (typeof valor === "boolean") return valor;
   if (valor === "true") return true;
@@ -180,6 +196,7 @@ function leerBooleano(valor, valorActual) {
   return valorActual;
 }
 
+// Consulta la configuración remota. Si la API está vacía, devuelve undefined sin romper la pantalla.
 async function obtenerConfiguracion() {
   const respuesta = await fetch(API_SETTINGS);
 
@@ -191,6 +208,7 @@ async function obtenerConfiguracion() {
   return Array.isArray(datos) ? datos[0] : datos;
 }
 
+// Copia los valores recibidos desde la API hacia el objeto de preferencias usado por la interfaz.
 function aplicarConfiguracion(config) {
   if (!config) return;
 
@@ -214,6 +232,7 @@ function aplicarConfiguracion(config) {
   localStorage.setItem("preferencias", JSON.stringify(preferencias));
 }
 
+// Sincroniza los checkboxes del HTML con las preferencias actuales.
 function pintarPreferenciasEnFormulario() {
   const seccionNotif = document.querySelector(".settings-section--notifications");
   const seccionPrivacidad = document.querySelector(".settings-section--privacy");
@@ -234,6 +253,7 @@ function pintarPreferenciasEnFormulario() {
   }
 }
 
+// Maneja el ciclo de carga de configuración remota y actualiza los toggles si hay datos.
 async function cargarConfiguracionRemota(resultadoArea) {
   try {
     mostrarMensaje(resultadoArea, "Cargando configuracion...", "cargando");
@@ -251,6 +271,7 @@ async function cargarConfiguracionRemota(resultadoArea) {
   }
 }
 
+// Inicializa eventos, valores del formulario y consulta remota cuando el HTML está listo.
 document.addEventListener("DOMContentLoaded", function () {
   const seccionPerfil = document.querySelector(".settings-section--profile");
   const btnGuardarPerfil = seccionPerfil.querySelector(".settings-form__submit--profile");

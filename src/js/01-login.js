@@ -1,9 +1,11 @@
 const API_USUARIOS =
   "https://69ff3b6e8c70b15fa3cb2e3d.mockapi.io/api/v1/users";
 
+// Se permite un máximo de intentos fallidos antes de bloquear el formulario.
 const MAX_INTENTOS = 3;
 let intentosRealizados = 0;
 
+// Muestra en el DOM el mensaje correspondiente a validación, carga, éxito, error o bloqueo.
 function mostrarMensaje(area, texto, tipo) {
   area.innerHTML = "";
 
@@ -14,6 +16,7 @@ function mostrarMensaje(area, texto, tipo) {
   area.appendChild(div);
 }
 
+// Bloquea los campos cuando el usuario supera el número permitido de intentos.
 function deshabilitarFormulario() {
   document.getElementById("email").disabled = true;
   document.getElementById("password").disabled = true;
@@ -23,6 +26,7 @@ function deshabilitarFormulario() {
   btn.textContent = "Bloqueado";
 }
 
+// Cambia el texto y disponibilidad del botón mientras se consulta la API.
 function cambiarEstadoBoton(cargando) {
   const btn = document.getElementById("btn-login");
 
@@ -36,6 +40,7 @@ function cambiarEstadoBoton(cargando) {
   btn.textContent = "Iniciar sesion";
 }
 
+// Consulta la API de usuarios y devuelve el arreglo de cuentas disponibles.
 async function obtenerUsuarios() {
   const respuesta = await fetch(API_USUARIOS);
 
@@ -46,12 +51,14 @@ async function obtenerUsuarios() {
   return await respuesta.json();
 }
 
+// Busca coincidencia exacta entre el correo y la contraseña ingresados por el usuario.
 function buscarUsuario(usuarios, email, password) {
   return usuarios.find(function (usuario) {
     return usuario.email === email && usuario.password === password;
   });
 }
 
+// Valida el formulario, consulta usuarios reales y decide si permite entrar al sistema.
 async function manejarLogin() {
   const email = document.getElementById("email").value.trim();
   const password = document.getElementById("password").value.trim();
@@ -73,6 +80,7 @@ async function manejarLogin() {
   }
 
   try {
+    // Mientras se espera la respuesta de internet, el usuario ve un estado de carga.
     cambiarEstadoBoton(true);
     mostrarMensaje(resultadoArea, "Validando usuario...", "cargando");
 
@@ -80,6 +88,7 @@ async function manejarLogin() {
     const usuarioEncontrado = buscarUsuario(usuarios, email, password);
 
     if (usuarioEncontrado) {
+      // La sesión se guarda temporalmente para que Home pueda personalizar la experiencia.
       sessionStorage.setItem(
         "usuarioSparkFi",
         JSON.stringify(usuarioEncontrado),
@@ -100,6 +109,7 @@ async function manejarLogin() {
 
     intentosRealizados++;
 
+    // Si los datos son incorrectos, se informa el avance de intentos antes del bloqueo.
     if (intentosRealizados < MAX_INTENTOS) {
       mostrarMensaje(
         resultadoArea,

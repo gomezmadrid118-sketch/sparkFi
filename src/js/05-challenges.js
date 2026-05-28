@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // API pública usada para traer datos base y transformarlos en retos financieros.
   const API_RETOS_URL = "https://jsonplaceholder.typicode.com/todos?_limit=6";
   const metaTotal = 50000;
 
+  // El progreso se guarda temporalmente para que no se pierda al recargar la página.
   let ahorroActual = Number(localStorage.getItem("sparkfi_ahorro_actual")) || 25000;
   let contadorDepositos =
     Number(localStorage.getItem("sparkfi_contador_depositos")) || 0;
@@ -12,15 +14,18 @@ document.addEventListener("DOMContentLoaded", function () {
   const listaDisponibles = document.querySelector(".available-list");
   const listaLogros = document.querySelectorAll(".achievement");
 
+  // Ajusta títulos que vienen de la API para que se vean mejor en la interfaz.
   function capitalizar(texto) {
     if (!texto) return "Reto financiero";
     return texto.charAt(0).toUpperCase() + texto.slice(1);
   }
 
+  // Convierte una tarea genérica de la API en un nombre de reto entendible para SparkFi.
   function crearTituloReto(tarea, index) {
     return "Reto " + (index + 1) + ": " + capitalizar(tarea.title);
   }
 
+  // Función encargada de consultar la API y devolver datos adaptados al módulo de retos.
   async function obtenerRetosApi() {
     const respuesta = await fetch(API_RETOS_URL);
 
@@ -41,6 +46,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Muestra carga o error en el área principal de retos y limpia la lista disponible.
   function mostrarEstadoRetos(texto, tipo) {
     if (challengeSection) {
       challengeSection.innerHTML = "";
@@ -58,6 +64,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Recalcula la barra de progreso y el texto con base en el ahorro actual.
   function actualizarVistaProgreso() {
     const barraFill = document.querySelector(".progress-fill");
     const textoProgreso = document.querySelector(".progress-text");
@@ -78,6 +85,7 @@ document.addEventListener("DOMContentLoaded", function () {
     actualizarLogros();
   }
 
+  // Suma dinero al progreso, limita el valor a la meta y guarda el cambio en localStorage.
   function actualizarGraficaProgreso(incremento) {
     ahorroActual += incremento;
 
@@ -89,6 +97,7 @@ document.addEventListener("DOMContentLoaded", function () {
     actualizarVistaProgreso();
   }
 
+  // Ilumina o apaga logros según el avance financiero del usuario.
   function actualizarLogros() {
     if (listaLogros[1]) {
       const desbloqueado = ahorroActual >= 35000;
@@ -113,6 +122,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Reconstruye el reto principal con datos que vienen de la API.
   function renderizarRetoActivo(reto) {
     if (!challengeSection || !reto) return;
 
@@ -142,6 +152,7 @@ document.addEventListener("DOMContentLoaded", function () {
     botonDeposito.className = "btn-join";
 
     function actualizarBotonDeposito() {
+      // El botón cambia de texto según el avance del usuario.
       if (ahorroActual >= metaTotal) {
         botonDeposito.textContent = "Meta cumplida";
         botonDeposito.disabled = true;
@@ -173,11 +184,13 @@ document.addEventListener("DOMContentLoaded", function () {
     actualizarBotonDeposito();
   }
 
+  // Deja claro visualmente que un reto ya fue aceptado y evita repetir el bono.
   function marcarBotonComoAceptado(boton, bono) {
     boton.textContent = "Aceptado (+$" + bono.toLocaleString("es-CO") + ")";
     boton.disabled = true;
   }
 
+  // Agrega al reto activo una tarjeta pequeña con cada reto que el usuario acepta.
   function crearTarjetaActivaEnPantalla(titulo) {
     if (!challengeSection) return;
 
@@ -203,6 +216,7 @@ document.addEventListener("DOMContentLoaded", function () {
     challengeSection.appendChild(tarjeta);
   }
 
+  // Pinta los retos secundarios y registra la interacción de "Unirse".
   function renderizarRetosDisponibles(retos) {
     if (!listaDisponibles) return;
 
@@ -242,6 +256,7 @@ document.addEventListener("DOMContentLoaded", function () {
       boton.addEventListener("click", function () {
         if (retosAceptadosIds.includes(reto.id)) return;
 
+        // Se guarda el id del reto aceptado para conservar el estado al recargar.
         retosAceptadosIds.push(reto.id);
         localStorage.setItem(
           "sparkfi_retos_aceptados",
@@ -263,6 +278,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Punto de entrada del módulo: muestra carga, consulta la API y renderiza la experiencia.
   async function cargarModuloRetos() {
     try {
       mostrarEstadoRetos("Cargando retos...", "cargando");

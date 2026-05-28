@@ -1,19 +1,23 @@
 const API_USUARIOS =
   "https://69ff3b6e8c70b15fa3cb2e3d.mockapi.io/api/v1/users";
 
+// Valida que el correo tenga una estructura básica de email antes de consultar la API.
 function validarFormatoCorreo(correo) {
   const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return regex.test(correo);
 }
 
+// Regla mínima para que la contraseña no sea demasiado corta.
 function validarLongitudContrasena(contrasena) {
   return contrasena.length >= 6;
 }
 
+// Comprueba que el usuario haya escrito dos veces la misma contraseña.
 function validarContrasenasIguales(contrasena, confirmarContrasena) {
   return contrasena === confirmarContrasena;
 }
 
+// Reúne todas las validaciones del formulario y devuelve una lista de errores legibles.
 function validarFormularioCrearCuenta(
   nombreCompleto,
   correo,
@@ -59,10 +63,12 @@ function validarFormularioCrearCuenta(
   return errores;
 }
 
+// Deja limpio el espacio donde aparecen errores, carga o confirmación.
 function limpiarResultado(area) {
   area.innerHTML = "";
 }
 
+// Pinta en el DOM todos los errores encontrados para que el usuario pueda corregirlos.
 function mostrarErrores(area, errores) {
   limpiarResultado(area);
 
@@ -83,6 +89,7 @@ function mostrarErrores(area, errores) {
   area.appendChild(lista);
 }
 
+// Mensaje temporal que se muestra mientras se consulta o se escribe en la API.
 function mostrarCargando(area) {
   limpiarResultado(area);
 
@@ -93,6 +100,7 @@ function mostrarCargando(area) {
   area.appendChild(mensaje);
 }
 
+// Confirma visualmente la creación de la cuenta y muestra los datos principales registrados.
 function mostrarExito(area, nombreCompleto, correo) {
   limpiarResultado(area);
 
@@ -126,6 +134,7 @@ function mostrarExito(area, nombreCompleto, correo) {
   area.appendChild(divExito);
 }
 
+// Evita doble clic mientras la operación de red está en proceso.
 function cambiarEstadoBoton(cargando) {
   const boton = document.getElementById("boton-crear-cuenta");
 
@@ -139,6 +148,7 @@ function cambiarEstadoBoton(cargando) {
   boton.textContent = "Registrarme";
 }
 
+// Estado final del botón cuando la cuenta fue creada correctamente.
 function mostrarBotonCuentaCreada() {
   const boton = document.getElementById("boton-crear-cuenta");
 
@@ -146,6 +156,7 @@ function mostrarBotonCuentaCreada() {
   boton.textContent = "Cuenta creada";
 }
 
+// Obtiene los usuarios existentes para poder validar que el correo no esté repetido.
 async function obtenerUsuarios() {
   const respuesta = await fetch(API_USUARIOS);
 
@@ -156,6 +167,7 @@ async function obtenerUsuarios() {
   return await respuesta.json();
 }
 
+// Revisa en el arreglo recibido desde la API si ya existe una cuenta con ese correo.
 function correoYaExiste(usuarios, correo) {
   const correoNormalizado = correo.trim().toLowerCase();
 
@@ -164,6 +176,7 @@ function correoYaExiste(usuarios, correo) {
   });
 }
 
+// Crea el usuario en MockAPI con un POST, simulando el registro en un backend.
 async function crearUsuario(usuario) {
   const respuesta = await fetch(API_USUARIOS, {
     method: "POST",
@@ -180,6 +193,7 @@ async function crearUsuario(usuario) {
   return await respuesta.json();
 }
 
+// Coordina validaciones locales, consulta de usuarios, creación remota y mensajes del DOM.
 async function manejarCrearCuenta() {
   const campoNombre = document.getElementById("nombre-completo");
   const campoCorreo = document.getElementById("correo");
@@ -212,6 +226,7 @@ async function manejarCrearCuenta() {
   let cuentaCreada = false;
 
   try {
+    // Desde este punto se inicia la comunicación con la API, por eso se muestra carga.
     cambiarEstadoBoton(true);
     mostrarCargando(mensajeResultado);
 
@@ -224,6 +239,7 @@ async function manejarCrearCuenta() {
       return;
     }
 
+    // Si el correo está disponible, se envía el nuevo usuario a la API.
     await crearUsuario({
       nombre: nombreCompleto,
       email: correo,

@@ -1,8 +1,10 @@
 const API_ESTUDIANTES =
   "https://69ff3b6e8c70b15fa3cb2e3d.mockapi.io/api/v1/students";
 
+// Contenedor principal donde se muestran los integrantes que llegan desde la API.
 const contenedorEstudiantes = document.getElementById("resultado-estudiantes");
 
+// Limpia el contenedor y muestra un mensaje de estado: carga, error o lista vacía.
 function mostrarMensajeEstado(texto, tipo) {
   contenedorEstudiantes.innerHTML = "";
 
@@ -13,6 +15,7 @@ function mostrarMensajeEstado(texto, tipo) {
   contenedorEstudiantes.appendChild(mensaje);
 }
 
+// Construye visualmente una tarjeta por estudiante usando los campos recibidos desde MockAPI.
 function crearTarjetaEstudiante(estudiante) {
   const tarjeta = document.createElement("article");
   tarjeta.className = "tarjeta-estudiante";
@@ -37,6 +40,7 @@ function crearTarjetaEstudiante(estudiante) {
   return tarjeta;
 }
 
+// Borra el estado anterior y pinta todas las tarjetas de estudiantes en una sola operación.
 function renderizarEstudiantes(estudiantes) {
   contenedorEstudiantes.innerHTML = "";
 
@@ -55,6 +59,7 @@ function renderizarEstudiantes(estudiantes) {
   contenedorEstudiantes.appendChild(fragmento);
 }
 
+// Función responsable únicamente de consultar la API y devolver el JSON listo para usar.
 async function consultarEstudiantes() {
   const respuesta = await fetch(API_ESTUDIANTES);
 
@@ -65,6 +70,7 @@ async function consultarEstudiantes() {
   return await respuesta.json();
 }
 
+// Controla el flujo completo de la pantalla inicial: carga, consulta, renderizado y error.
 async function cargarEstudiantes() {
   try {
     mostrarMensajeEstado("Cargando estudiantes...", "cargando");

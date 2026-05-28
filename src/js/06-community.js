@@ -1,10 +1,12 @@
 document.addEventListener("DOMContentLoaded", function () {
+  // JsonPlaceholder entrega publicaciones y usuarios para simular un feed social real.
   const API_POSTS_URL = "https://jsonplaceholder.typicode.com/posts?_limit=4";
   const API_USERS_URL = "https://jsonplaceholder.typicode.com/users";
 
   const postListContainer = document.querySelector(".post-list");
   const btnNewPost = document.querySelector(".btn-new-post");
 
+  // Consulta publicaciones y autores en paralelo, luego une cada post con su usuario.
   async function obtenerPostsComunidad() {
     const respuestas = await Promise.all([fetch(API_POSTS_URL), fetch(API_USERS_URL)]);
     const postsResponse = respuestas[0];
@@ -33,6 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Reemplaza el feed por un mensaje de carga o error según el momento.
   function mostrarEstadoComunidad(texto, tipo) {
     if (!postListContainer) return;
 
@@ -50,14 +53,17 @@ document.addEventListener("DOMContentLoaded", function () {
     postListContainer.appendChild(tarjeta);
   }
 
+  // Recupera publicaciones creadas por el usuario y guardadas solo en este navegador.
   function obtenerPostsGuardados() {
     return JSON.parse(localStorage.getItem("sparkfi_custom_posts")) || [];
   }
 
+  // Persiste publicaciones personalizadas sin depender de un backend real.
   function guardarPostsPersonalizados(posts) {
     localStorage.setItem("sparkfi_custom_posts", JSON.stringify(posts));
   }
 
+  // Agrega un botón de eliminar a cada post; los posts de API solo se quitan de la vista.
   function inyectarBotonEliminar(tarjetaPost, idUnico, esPersonalizado) {
     tarjetaPost.style.position = "relative";
 
@@ -71,6 +77,7 @@ document.addEventListener("DOMContentLoaded", function () {
       if (!confirm("Deseas eliminar esta publicacion de la pantalla?")) return;
 
       if (esPersonalizado) {
+        // Si el post era local, también se borra de localStorage junto con sus comentarios.
         const postsFiltrados = obtenerPostsGuardados().filter(function (post) {
           return post.id !== idUnico;
         });
@@ -85,6 +92,7 @@ document.addEventListener("DOMContentLoaded", function () {
     tarjetaPost.appendChild(btnEliminar);
   }
 
+  // Pinta un comentario individual y le agrega su botón para eliminarlo.
   function pintarComentario(contenedor, texto, indice, idUnico, nodoContador, comentarios) {
     const div = document.createElement("div");
     div.style.cssText =
@@ -99,6 +107,7 @@ document.addEventListener("DOMContentLoaded", function () {
     boton.style.cssText = "background:none;border:none;cursor:pointer;";
 
     boton.addEventListener("click", function () {
+      // Al borrar un comentario se repinta la lista para mantener índices correctos.
       comentarios.splice(indice, 1);
       localStorage.setItem("comments_" + idUnico, JSON.stringify(comentarios));
 
@@ -122,6 +131,7 @@ document.addEventListener("DOMContentLoaded", function () {
     contenedor.appendChild(div);
   }
 
+  // Activa likes, comentarios y persistencia local para una tarjeta de publicación.
   function configurarInteractividadPost(tarjetaPost, idUnico) {
     const btnLike = tarjetaPost.querySelector(".react-btn");
     const btnComentar = tarjetaPost.querySelector(".comment-btn");
@@ -132,6 +142,7 @@ document.addEventListener("DOMContentLoaded", function () {
     let haDadoLike = false;
 
     btnLike.addEventListener("click", function () {
+      // El like se alterna en memoria para esta sesión de navegación.
       totalLikes += haDadoLike ? -1 : 1;
       haDadoLike = !haDadoLike;
       contadorLikesTexto.textContent = totalLikes;
@@ -190,6 +201,7 @@ document.addEventListener("DOMContentLoaded", function () {
       const texto = input.value.trim();
       if (!texto) return;
 
+      // Los comentarios se guardan por id de publicación para no mezclarlos entre posts.
       comentariosGuardados.push(texto);
       localStorage.setItem("comments_" + idUnico, JSON.stringify(comentariosGuardados));
 
@@ -215,6 +227,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Construye una tarjeta completa de post usando createElement para evitar HTML quemado.
   function inyectarNuevoPostAlDOM(data, agregarAlInicio) {
     if (!postListContainer) return;
 
@@ -307,6 +320,7 @@ document.addEventListener("DOMContentLoaded", function () {
     article.appendChild(postBottom);
 
     if (agregarAlInicio) {
+      // Las publicaciones nuevas del usuario se muestran primero.
       postListContainer.insertBefore(article, postListContainer.firstChild);
     } else {
       postListContainer.appendChild(article);
@@ -316,6 +330,7 @@ document.addEventListener("DOMContentLoaded", function () {
     configurarInteractividadPost(article, data.id);
   }
 
+  // Limpia el feed y pinta publicaciones locales junto con las recibidas desde la API.
   function renderizarFeed(posts) {
     if (!postListContainer) return;
 
@@ -326,6 +341,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Crea un modal simple para que el usuario agregue una publicación local.
   function abrirFormularioNuevaPublicacion() {
     const modal = document.createElement("div");
     modal.style.cssText =
@@ -358,6 +374,7 @@ document.addEventListener("DOMContentLoaded", function () {
         return;
       }
 
+      // El post creado no se envía a API; se mantiene como almacenamiento temporal.
       const nuevoPost = {
         id: "custom_post_" + Date.now(),
         title: titulo,
@@ -375,6 +392,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Punto de entrada de Comunidad: carga publicaciones, une datos y maneja errores.
   async function cargarFeedComunidad() {
     try {
       mostrarEstadoComunidad("Cargando comunidad...", "cargando");

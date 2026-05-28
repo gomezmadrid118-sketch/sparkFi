@@ -6,6 +6,7 @@ function obtenerSaludo() {
   return "Buenas noches";
 }
 
+// Lee la sesión temporal creada en Login. Si no existe o está dañada, se trabaja como invitado.
 function obtenerUsuarioSesion() {
   try {
     const raw = sessionStorage.getItem("usuarioSparkFi");
@@ -17,6 +18,7 @@ function obtenerUsuarioSesion() {
   }
 }
 
+// Convierte números simples en formato de pesos colombianos para las tarjetas de resumen.
 function formatearCOP(valor) {
   const numero = Number(valor) || 0;
   return "COP " + numero.toLocaleString("es-CO");
@@ -29,6 +31,7 @@ const TIPS_URL = "https://6a074a82c83ba8ad9b3ebec7.mockapi.io/api/v1/Tips";
 const INTERVALO_ROTACION_TIPS_MS = 8000;
 const TIEMPO_MINIMO_CARGA_HOME_MS = 1200;
 
+// Consulta los tips financieros desde MockAPI. Si algo falla, devuelve null para activar el fallback.
 async function obtenerTipsMedianteAPI() {
   try {
     const respuesta = await fetch(TIPS_URL);
@@ -42,6 +45,7 @@ async function obtenerTipsMedianteAPI() {
   }
 }
 
+// Busca en la API de usuarios el mismo correo guardado en sesión para refrescar datos reales.
 async function obtenerUsuarioDesdeAPI(email) {
   if (!email) return null;
 
@@ -64,15 +68,18 @@ async function obtenerUsuarioDesdeAPI(email) {
   }
 }
 
+// Centraliza cómo se obtiene el nombre, sin depender de un único nombre de propiedad.
 function obtenerNombreVisible(usuario) {
   if (!usuario) return "Invitado";
   return usuario.nombre || usuario.name || "Invitado";
 }
 
+// Si el usuario no trae ahorro desde la API, se usa cero para que la interfaz siga estable.
 function obtenerAhorroVisible(usuario) {
   return usuario && usuario.ahorro != null ? usuario.ahorro : 0;
 }
 
+// El curso pendiente puede venir de la API o de localStorage si se guardó en otra pantalla.
 function obtenerCursoVisible(usuario) {
   if (!usuario) return null;
 
@@ -85,6 +92,7 @@ function obtenerCursoVisible(usuario) {
   );
 }
 
+// Actualiza el título principal con el saludo y el nombre del usuario actual.
 function actualizarSaludo(usuario) {
   const titulo = document.querySelector(".inicio-hero__titulo");
   if (!titulo) return;
@@ -96,6 +104,7 @@ function actualizarSaludo(usuario) {
     ' <span class="inicio-hero__icono-saludo">👋</span>';
 }
 
+// Pinta ahorro, meta y porcentaje de avance usando los datos recibidos del usuario.
 function actualizarAhorroMensual(usuario) {
   const ahorro = obtenerAhorroVisible(usuario);
 
@@ -129,6 +138,7 @@ function actualizarAhorroMensual(usuario) {
 
 }
 
+// Muestra el último curso conocido o una invitación a entrar a la sección de cursos.
 function actualizarCursoPendiente(usuario) {
   const titulo = document.querySelector("[data-last-course-title]");
   const estado = document.querySelector("[data-last-course-status]");
@@ -156,6 +166,7 @@ function actualizarCursoPendiente(usuario) {
 
 
 
+// Normaliza los tips para que la interfaz use siempre las mismas propiedades internas.
 function normalizarTips(listaTips) {
   if (!Array.isArray(listaTips)) return [];
 
@@ -182,6 +193,34 @@ function normalizarTips(listaTips) {
   return tipsNormalizados;
 }
 
+// Tips locales de respaldo. Se usan cuando la API no devuelve datos útiles.
+function obtenerTipsPorDefecto() {
+  return [
+    {
+      icono: "💡",
+      categoria: "AHORRO",
+      titulo: "Empieza con una meta pequeña",
+      descripcion:
+        "Guardar una cantidad alcanzable cada semana ayuda a crear constancia antes de subir la meta.",
+    },
+    {
+      icono: "📊",
+      categoria: "PRESUPUESTO",
+      titulo: "Revisa tus gastos variables",
+      descripcion:
+        "Identificar en qué se va el dinero permite ajustar hábitos sin eliminar todo lo que disfrutas.",
+    },
+    {
+      icono: "🎯",
+      categoria: "META",
+      titulo: "Ponle fecha a tus objetivos",
+      descripcion:
+        "Una meta con monto y fecha clara es más fácil de seguir que una intención general de ahorrar.",
+    },
+  ];
+}
+
+// Configura la tarjeta de tips, sus botones de navegación y la rotación automática.
 function iniciarTarjetaTips(listaTips) {
   const icono = document.querySelector("[data-tip-icono]");
   const categoria = document.querySelector("[data-tip-categoria]");
@@ -263,6 +302,7 @@ function navegarAlPerfil() {
   });
 }
 
+// Muestra el indicador de carga general mientras se resuelven usuario y tips.
 function mostrarCargandoHome() {
   const bloque = document.querySelector("[data-home-cargando]");
   if (bloque) {
@@ -270,6 +310,7 @@ function mostrarCargandoHome() {
   }
 }
 
+// Oculta el indicador de carga cuando la pantalla ya tiene datos o fallback.
 function ocultarCargandoHome() {
   const bloque = document.querySelector("[data-home-cargando]");
   if (bloque) {
@@ -277,6 +318,7 @@ function ocultarCargandoHome() {
   }
 }
 
+// Hace visible la tarjeta de tips una vez que ya se sabe qué contenido mostrar.
 function mostrarTipsHome() {
   const tips = document.querySelector("[data-home-tips]");
   if (tips) {
@@ -284,6 +326,7 @@ function mostrarTipsHome() {
   }
 }
 
+// Muestra un mensaje amigable cuando alguna consulta remota no pudo completarse.
 function mostrarErrorHome(mensaje) {
   const bloque = document.querySelector("[data-home-error]");
   if (bloque) {
@@ -292,6 +335,7 @@ function mostrarErrorHome(mensaje) {
   }
 }
 
+// Limpia errores previos al volver a intentar cargar la pantalla.
 function ocultarErrorHome() {
   const bloque = document.querySelector("[data-home-error]");
   if (bloque) {
@@ -299,12 +343,14 @@ function ocultarErrorHome() {
   }
 }
 
+// Pequeña pausa visual para que el mensaje de carga no aparezca y desaparezca de golpe.
 function esperar(ms) {
   return new Promise(function (resolve) {
     setTimeout(resolve, ms);
   });
 }
 
+// Decide si se trabaja con usuario de sesión, usuario actualizado desde API o invitado.
 async function resolverUsuarioActual() {
   const usuarioSesion = obtenerUsuarioSesion();
   if (!usuarioSesion) {
@@ -315,12 +361,14 @@ async function resolverUsuarioActual() {
   return usuarioAPI || usuarioSesion;
 }
 
+// Punto de entrada de Home: carga datos en paralelo, actualiza el DOM y maneja estados visuales.
 document.addEventListener("DOMContentLoaded", async function () {
   mostrarCargandoHome();
   ocultarErrorHome();
   const inicioCarga = Date.now();
 
   try {
+    // Usuario y tips no dependen entre sí, por eso se consultan al mismo tiempo.
     const [usuarioActual, tipsDesdeAPI] = await Promise.all([
       resolverUsuarioActual(),
       obtenerTipsMedianteAPI(),

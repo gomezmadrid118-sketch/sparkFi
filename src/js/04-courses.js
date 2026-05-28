@@ -143,13 +143,18 @@
 //   },
 // ];
 
-// Procedemos a usar APIs
+// API de cursos creada en MockAPI. Reemplaza el arreglo local que quedó arriba como referencia.
 const Courses_URL = "https://6a074a82c83ba8ad9b3ebec7.mockapi.io/api/v1/Courses";
+
+// Tiempo mínimo para que el estado "Cargando..." sea visible y no parpadee.
 const TIEMPO_MINIMO_CARGA_MS = 1200;
+
+// Parámetro útil para probar el bloque de error desde la URL: ?simularErrorCursos=1.
 const PARAMETROS_CURSOS = new URLSearchParams(window.location.search);
 const SIMULAR_ERROR_CURSOS = PARAMETROS_CURSOS.get("simularErrorCursos") === "1";
 let huboErrorCargaCursos = false;
 
+// Consulta los cursos remotos y devuelve un arreglo listo para renderizar.
 async function obtenerCursosMedianteAPI() {
   huboErrorCargaCursos = false;
   try {
@@ -169,6 +174,7 @@ async function obtenerCursosMedianteAPI() {
   }
 }
 
+// Este arreglo se llena con la respuesta de la API y luego se usa para filtrar y pintar.
 let cursos = [];
 
 // Referencias a los elementos del DOM que se actualizan dinámicamente
@@ -195,6 +201,7 @@ function obtenerCursosActivos() {
   return cursos.filter((curso) => curso.tema === temaActivo);
 }
 
+// Filtra por texto de búsqueda sobre los cursos que ya llegaron desde la API.
 function obtenerCursosFiltrados() {
   return cursos.filter((curso) => {
     const coincideTexto = curso.titulo
@@ -214,6 +221,7 @@ if (inputBusqueda) {
 
 }
 
+// Crea desde JS el mensaje de carga para no duplicar elementos en el HTML.
 function crearBloqueCargando() {
   if (!contenidoCursos || bloqueCargando) return;
 
@@ -230,6 +238,7 @@ function crearBloqueCargando() {
   bloqueCargando = bloque;
 }
 
+// Muestra el estado de carga antes y durante la consulta remota.
 function mostrarCargandoCursos() {
   if (!bloqueCargando) {
     crearBloqueCargando();
@@ -239,12 +248,14 @@ function mostrarCargandoCursos() {
   }
 }
 
+// Oculta el estado de carga cuando ya se resolvió la consulta, con o sin error.
 function ocultarCargandoCursos() {
   if (bloqueCargando) {
     bloqueCargando.hidden = true;
   }
 }
 
+// Deja visible el mensaje de error que existe en el HTML.
 function mostrarErrorCursos(mensaje) {
   if (bloqueErrorCursos) {
     bloqueErrorCursos.textContent = mensaje;
@@ -252,6 +263,7 @@ function mostrarErrorCursos(mensaje) {
   }
 }
 
+// Limpia errores anteriores antes de iniciar una nueva carga.
 function ocultarErrorCursos() {
   if (bloqueErrorCursos) {
     bloqueErrorCursos.hidden = true;
@@ -273,6 +285,8 @@ function renderizarCursos() {
 
   const cursosActivos = obtenerCursosFiltrados();
   const botonesActuales = barraLateral.querySelectorAll(".boton-tema-curso");
+
+  // Se eliminan los botones quemados del HTML y se reemplazan por datos reales.
   botonesActuales.forEach((boton) => boton.remove());
 
   // Si no hay resultados, muestra el mensaje de "no encontrados"
@@ -319,6 +333,7 @@ function renderizarLeccionesCurso(curso) {
     return;
   }
 
+  // Cada lección del curso seleccionado se convierte en una tarjeta interactiva.
   contenedorLecciones.innerHTML = curso.lecciones
     .map((leccion, index) => {
       const numero = index + 1;
@@ -347,6 +362,7 @@ function renderizarLeccionesCurso(curso) {
 function renderizarDetalleCurso(curso) {
   if (!curso) return;
 
+  // La vista derecha siempre refleja el curso actualmente seleccionado en el sidebar.
   if (porcentajeLeccion) {
     porcentajeLeccion.textContent = curso.progreso + "% completado";
   }
@@ -375,6 +391,7 @@ function completarCursoActivo() {
     return;
   }
 
+  // Esta acción es local: actualiza el progreso en pantalla, pero no escribe en la API.
   cursoActivo.progreso = 100;
   cursoActivo.estado = "Completado";
   renderizarDetalleCurso(cursoActivo);
@@ -385,10 +402,12 @@ if (botonCompletarLeccion) {
   botonCompletarLeccion.addEventListener("click", completarCursoActivo);
 }
 
+// Pequeña pausa visual para que el estado de carga sea perceptible.
 function esperar(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Punto de entrada de Cursos: muestra carga, consulta la API, renderiza y maneja errores.
 async function inicializarCursos() {
   mostrarCargandoCursos();
   ocultarErrorCursos();
@@ -422,6 +441,7 @@ let leccionesCompletadas = 0;
 let totalLecciones = 0;
 
 // Función para actualizar la barra y el texto de progreso
+// Actualiza la barra y el texto según las lecciones marcadas desde la interfaz.
 function actualizarBarraProgreso() {
   if (!barraProgresoRelleno || !textoProgresoLeccion) {
     return;
@@ -432,6 +452,7 @@ function actualizarBarraProgreso() {
 }
 
 // Delegación de eventos: escucha clics en el contenedor de lecciones
+// Delegación de eventos: escucha clics en el contenedor porque las lecciones se crean dinámicamente.
 if (contenedorLecciones) {
   contenedorLecciones.addEventListener('click', (evento) => {
     const boton = evento.target.closest('.boton-leccion');
@@ -462,6 +483,7 @@ if (contenedorLecciones) {
 }
 
 // Observador para contar el total de lecciones cuando se renderizan
+// Observa cambios en la lista para recalcular progreso cada vez que se pinta otro curso.
 const observador = new MutationObserver(() => {
   totalLecciones = contenedorLecciones.querySelectorAll('.boton-leccion').length;
   leccionesCompletadas = contenedorLecciones.querySelectorAll('.boton-leccion.completado').length;
