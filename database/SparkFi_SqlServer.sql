@@ -57,7 +57,8 @@ CREATE TABLE Retos (
     IdReto        INT IDENTITY(1,1) PRIMARY KEY,
     NombreReto    NVARCHAR(150) NOT NULL,
     Descripcion   NVARCHAR(300) NULL,
-    MontoObjetivo DECIMAL(10,2) NULL
+    MontoObjetivo DECIMAL(10,2) NULL,
+    CONSTRAINT CK_Retos_MontoObjetivo CHECK (MontoObjetivo >= 0)
 );
 GO
 
@@ -94,7 +95,8 @@ CREATE TABLE Ahorros (
     Monto         DECIMAL(10,2) NOT NULL DEFAULT 0,
     FechaRegistro DATETIME2 NOT NULL DEFAULT SYSDATETIME(),
     CONSTRAINT FK_Ahorros_Usuarios FOREIGN KEY (IdUsuario)
-        REFERENCES Usuarios(IdUsuario) ON DELETE CASCADE
+        REFERENCES Usuarios(IdUsuario) ON DELETE CASCADE,
+    CONSTRAINT CK_Ahorros_Monto CHECK (Monto >= 0)
 );
 GO
 
@@ -120,7 +122,9 @@ CREATE TABLE ProgresoCursos (
         REFERENCES Usuarios(IdUsuario) ON DELETE CASCADE,
     CONSTRAINT FK_ProgresoCursos_Cursos FOREIGN KEY (IdCurso)
         REFERENCES Cursos(IdCurso),
-    CONSTRAINT CK_ProgresoCursos_Porcentaje CHECK (Porcentaje BETWEEN 0 AND 100)
+    CONSTRAINT CK_ProgresoCursos_Porcentaje CHECK (Porcentaje BETWEEN 0 AND 100),
+    -- Evita que un usuario tenga dos avances del mismo curso
+    CONSTRAINT UQ_ProgresoCursos_UsuarioCurso UNIQUE (IdUsuario, IdCurso)
 );
 GO
 
@@ -134,7 +138,10 @@ CREATE TABLE ProgresoRetos (
     CONSTRAINT FK_ProgresoRetos_Usuarios FOREIGN KEY (IdUsuario)
         REFERENCES Usuarios(IdUsuario) ON DELETE CASCADE,
     CONSTRAINT FK_ProgresoRetos_Retos FOREIGN KEY (IdReto)
-        REFERENCES Retos(IdReto)
+        REFERENCES Retos(IdReto),
+    CONSTRAINT CK_ProgresoRetos_Monto CHECK (MontoActual >= 0),
+    -- Evita progreso duplicado del mismo reto para el mismo usuario
+    CONSTRAINT UQ_ProgresoRetos_UsuarioReto UNIQUE (IdUsuario, IdReto)
 );
 GO
 
@@ -174,7 +181,9 @@ CREATE TABLE UsuarioLogros (
     CONSTRAINT FK_UsuarioLogros_Usuarios FOREIGN KEY (IdUsuario)
         REFERENCES Usuarios(IdUsuario) ON DELETE CASCADE,
     CONSTRAINT FK_UsuarioLogros_Logros FOREIGN KEY (IdLogro)
-        REFERENCES Logros(IdLogro)
+        REFERENCES Logros(IdLogro),
+    -- Evita asignar el mismo logro varias veces al mismo usuario
+    CONSTRAINT UQ_UsuarioLogros_UsuarioLogro UNIQUE (IdUsuario, IdLogro)
 );
 GO
 
@@ -182,16 +191,16 @@ GO
    5) ÍNDICES recomendados sobre las llaves foráneas
       (mejoran el rendimiento de los JOIN y los filtros)
    ============================================================ */
+-- Nota: ProgresoCursos(IdUsuario), ProgresoRetos(IdUsuario) y UsuarioLogros(IdUsuario)
+-- NO necesitan índice propio: ya quedan cubiertos por la columna líder de sus
+-- restricciones UNIQUE compuestas. Solo se indexan las demás columnas FK.
 CREATE INDEX IX_Ahorros_IdUsuario          ON Ahorros(IdUsuario);
 CREATE INDEX IX_Lecciones_IdCurso          ON Lecciones(IdCurso);
-CREATE INDEX IX_ProgresoCursos_IdUsuario   ON ProgresoCursos(IdUsuario);
 CREATE INDEX IX_ProgresoCursos_IdCurso     ON ProgresoCursos(IdCurso);
-CREATE INDEX IX_ProgresoRetos_IdUsuario    ON ProgresoRetos(IdUsuario);
 CREATE INDEX IX_ProgresoRetos_IdReto       ON ProgresoRetos(IdReto);
 CREATE INDEX IX_Publicaciones_IdUsuario    ON Publicaciones(IdUsuario);
 CREATE INDEX IX_Comentarios_IdPublicacion  ON Comentarios(IdPublicacion);
 CREATE INDEX IX_Comentarios_IdUsuario      ON Comentarios(IdUsuario);
-CREATE INDEX IX_UsuarioLogros_IdUsuario    ON UsuarioLogros(IdUsuario);
 CREATE INDEX IX_UsuarioLogros_IdLogro      ON UsuarioLogros(IdLogro);
 GO
 
