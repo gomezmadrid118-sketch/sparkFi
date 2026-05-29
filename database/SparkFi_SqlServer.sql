@@ -1,8 +1,4 @@
-/* ============================================================
-   SparkFi - Base de datos (SQL Server / SSMS)
-   Compatible con SQL Server 2016 o superior.
-   Ejecutar en SQL Server Management Studio.
-   ============================================================ */
+--SparkFi - Base de datos (SQL Server)
 
 -- 1) Crear la base de datos solo si no existe
 IF DB_ID('SparkFi') IS NULL
