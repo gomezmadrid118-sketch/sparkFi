@@ -1,6 +1,6 @@
 # SparkFi — Plataforma Educativa de Finanzas Personales
 
-SparkFi es un prototipo de aplicación web orientada a la educación financiera personal. Ofrece una experiencia interactiva con cursos, retos, gamificación y seguimiento visual del progreso, construida íntegramente con tecnologías web fundamentales, sin instalación de paquetes ni herramientas de build.
+SparkFi es un prototipo de aplicación web orientada a la educación financiera personal. Ofrece una experiencia interactiva con cursos, retos, gamificación y seguimiento visual del progreso. Está construida íntegramente con tecnologías web fundamentales (HTML, CSS y JavaScript), **sin frameworks ni herramientas de build**, y todas sus pantallas consumen datos en tiempo real desde **APIs REST** mediante `fetch` y `async/await`.
 
 ---
 
@@ -9,6 +9,7 @@ SparkFi es un prototipo de aplicación web orientada a la educación financiera 
 - [Vista previa](#vista-previa)
 - [Características](#características)
 - [Tecnologías](#tecnologías)
+- [Integración con APIs](#integración-con-apis)
 - [Estructura del proyecto](#estructura-del-proyecto)
 - [Instalación y uso](#instalación-y-uso)
 - [Credenciales de prueba](#credenciales-de-prueba)
@@ -31,15 +32,17 @@ SparkFi es un prototipo de aplicación web orientada a la educación financiera 
 
 ## Características
 
-- **Portada institucional** — página inicial con integrantes del equipo y accesos a las pantallas asignadas
-- **Autenticación simulada** — login y registro con validación en el lado del cliente
-- **Dashboard principal** — resumen del progreso, cursos activos y estadísticas financieras
-- **Cursos interactivos** — módulos de educación financiera organizados por tema y nivel
-- **Retos financieros** — sistema de desafíos con seguimiento de avance y puntuación
-- **Comunidad** — sección social para interacción entre usuarios
-- **Perfil de usuario** — historial de actividad, logros y estadísticas personales
-- **Configuración** — preferencias de cuenta y personalización
-- **Diseño responsive** — adaptado para móvil, tablet y escritorio
+- **Portada institucional dinámica** — los integrantes del equipo se cargan desde una API y se renderizan como tarjetas con sus pantallas asignadas.
+- **Autenticación contra API** — el login valida correo y contraseña consultando usuarios reales, con límite de 3 intentos, bloqueo del formulario y sesión persistida en `sessionStorage`.
+- **Registro con `POST`** — crea cuentas nuevas en el backend, valida el formulario en el cliente y evita correos duplicados antes de enviar.
+- **Dashboard personalizado** — saludo según la hora, datos del usuario traídos de la API y tarjeta de "tips financieros" rotativa con respaldo local si la API falla.
+- **Cursos interactivos** — catálogo cargado desde API, búsqueda en tiempo real, filtrado por tema y seguimiento de progreso por lección.
+- **Retos financieros** — transforma datos de una API pública en desafíos, con barra de progreso, depósitos simulados y logros desbloqueables (persistidos en `localStorage`).
+- **Comunidad social** — feed de publicaciones que combina datos de API con posts propios, likes y comentarios guardados localmente.
+- **Perfil de usuario** — estadísticas (cursos, retos, ahorro) consumidas desde API con animación de contadores.
+- **Configuración** — preferencias de cuenta y notificaciones sincronizadas con API y `localStorage`.
+- **Estados de carga y error** — cada pantalla muestra mensajes de "Cargando…" y maneja fallos de red con avisos amigables al usuario.
+- **Diseño responsive** — adaptado para móvil, tablet y escritorio.
 
 ---
 
@@ -50,10 +53,43 @@ SparkFi es un prototipo de aplicación web orientada a la educación financiera 
 | HTML5 | Estructura semántica de las vistas |
 | CSS3 | Estilos, layout y responsividad |
 | JavaScript (Vanilla) | Interactividad y lógica del cliente |
-| SVG inline | Favicon vectorial del logo |
+| Fetch API + `async/await` | Consumo de servicios REST |
+| MockAPI | Backend simulado (usuarios, cursos, tips, perfil, configuración, estudiantes) |
+| JSONPlaceholder | API pública para retos y comunidad |
+| `sessionStorage` / `localStorage` | Persistencia de sesión y datos del navegador |
 | Google Fonts (Inter) | Tipografía del sistema |
 
 > No requiere instalación de paquetes ni herramientas de construcción (build tools).
+
+---
+
+## Integración con APIs
+
+Todas las pantallas obtienen sus datos de servicios REST externos usando `fetch` y `async/await`, con manejo de errores mediante `try/catch` y estados de carga visibles para el usuario.
+
+| Pantalla | API | Operación | Qué hace |
+|----------|-----|-----------|----------|
+| Portada (`index`) | MockAPI · `students` | `GET` | Lista los integrantes del equipo y sus pantallas asignadas |
+| Login | MockAPI · `users` | `GET` | Valida credenciales y guarda la sesión |
+| Registro | MockAPI · `users` | `GET` + `POST` | Verifica correos duplicados y crea la cuenta nueva |
+| Home | MockAPI · `users` + `Tips` | `GET` (en paralelo) | Refresca datos del usuario y muestra tips rotativos |
+| Cursos | MockAPI · `Courses` | `GET` | Carga el catálogo de cursos y lecciones |
+| Retos | JSONPlaceholder · `todos` | `GET` | Transforma tareas genéricas en retos financieros |
+| Comunidad | JSONPlaceholder · `posts` + `users` | `GET` (en paralelo) | Construye el feed uniendo cada post con su autor |
+| Perfil | MockAPI · `Profile` | `GET` | Muestra estadísticas del usuario |
+| Configuración | MockAPI · `Settings` | `GET` | Sincroniza las preferencias de la cuenta |
+
+**Conceptos aplicados:**
+
+- Peticiones `GET` y `POST` con cabeceras y cuerpo JSON.
+- Peticiones en paralelo con `Promise.all` (Home y Comunidad).
+- Manejo de errores con `try/catch` y mensajes claros al usuario.
+- Estados de carga (`Cargando…`) con un tiempo mínimo para evitar parpadeos.
+- Datos de respaldo (*fallback*) cuando la API no responde (p. ej. los tips del Home).
+- Normalización de datos para tolerar distintos nombres de campos.
+- Persistencia local con `sessionStorage` y `localStorage`.
+
+> **Tip para demostrar el manejo de errores:** abre la vista de Cursos con el parámetro `?simularErrorCursos=1` en la URL para forzar un fallo de carga y ver el mensaje de error.
 
 ---
 
@@ -78,7 +114,8 @@ sparkFi/
 │   │   ├── 02-create-account.css
 │   │   └── ...                 # Un archivo por vista
 │   ├── js/
-│   │   ├── 01-login.js
+│   │   ├── index.js            # Carga de estudiantes (API)
+│   │   ├── 01-login.js         # Lógica de cada vista + llamadas a la API
 │   │   ├── 02-create-account.js
 │   │   └── ...                 # Un archivo por vista
 │   └── images/
@@ -91,7 +128,7 @@ sparkFi/
 
 ## Instalación y uso
 
-**Requisitos previos:** [VS Code](https://code.visualstudio.com/) con la extensión [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer).
+**Requisitos previos:** [VS Code](https://code.visualstudio.com/) con la extensión [Live Server](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer) y conexión a internet (las pantallas consumen APIs en línea).
 
 ```bash
 # 1. Clonar el repositorio
@@ -113,12 +150,14 @@ El navegador abrirá la portada del proyecto. Desde allí se puede revisar la as
 
 ## Credenciales de prueba
 
-Para explorar la aplicación sin necesidad de registrarse, se pueden usar las siguientes credenciales:
+Para explorar la aplicación sin necesidad de registrarse, se pueden usar las siguientes credenciales (validadas contra la API de usuarios):
 
 | Campo | Valor |
 |-------|-------|
 | Correo | `admin@sparkfi.com` |
 | Contraseña | `sparkfi123` |
+
+También puedes crear tu propia cuenta desde la pantalla de **Registro**: se guardará en el backend y podrás iniciar sesión con ella.
 
 ---
 
